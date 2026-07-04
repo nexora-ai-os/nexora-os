@@ -1,0 +1,146 @@
+import React,{useMemo,useState}from"react";
+import{createRoot}from"react-dom/client";
+import{Bot,BrainCircuit,CalendarDays,ChartNoAxesCombined,Copy,Database,ExternalLink,Flame,Gauge,Home,KeyRound,Library,Lightbulb,Link2,Megaphone,Rocket,Settings,ShieldCheck,Sparkles,Target,WalletCards,WandSparkles,Workflow,Search,CheckCircle2}from"lucide-react";
+import"./styles.css";
+
+const links={
+ai:[["ChatGPT / COO","https://chatgpt.com/"],["Claude / 編集長","https://claude.ai/"],["Gemini / 市場調査","https://gemini.google.com/"],["NotebookLM / 資料整理","https://notebooklm.google.com/"]],
+create:[["Canva","https://www.canva.com/"],["CapCut","https://www.capcut.com/"],["Google Drive","https://drive.google.com/"],["Google Docs","https://docs.google.com/"],["Google Sheets","https://sheets.google.com/"],["Google Keep","https://keep.google.com/"]],
+sns:[["Instagram","https://www.instagram.com/"],["Threads","https://www.threads.net/"],["X","https://x.com/"],["TikTok","https://www.tiktok.com/"],["YouTube Studio","https://studio.youtube.com/"]],
+asp:[["A8.net","https://www.a8.net/"],["もしも","https://af.moshimo.com/"],["楽天アフィリエイト","https://affiliate.rakuten.co.jp/"],["アクセストレード","https://www.accesstrade.ne.jp/"]]
+};
+
+const roles=[
+["ChatGPT","COO","戦略、企画、SNS展開、収益導線、作業削減を統括。"],
+["Claude","編集長","長文、ブログ、校正、自然な文章化を担当。"],
+["Gemini","市場調査部長","最新情報、競合、トレンド、検索調査を担当。"],
+["NotebookLM","資料管理部","資料読解、要約、ナレッジ化を担当。"]
+];
+
+const commandList=[
+["CMD-001","6媒体一括生成","Instagram / Threads / X / TikTok / Shorts / ブログを一括作成"],
+["CMD-002","カルーセル生成","7〜10枚構成、保存される投稿を作成"],
+["CMD-003","AI音声動画台本","顔出し・声出しなしの30秒台本"],
+["CMD-004","バズ分析","伸びた理由、冒頭フック、再現案を分析"],
+["CMD-005","収益導線設計","アフィリエイト導線とCTAを自然に組み込む"],
+["CMD-006","投稿改善レビュー","投稿を100点採点し改善案を出す"]
+];
+
+function makePrompt(theme,type,goal){
+return `あなたはNEXORAのCOOです。
+
+# NEXORA
+タグライン：AIと仕組みで、仕事をもっと自由に。
+
+# 運営方針
+- iPad/iPhone中心
+- 顔出しなし
+- 自分の声なし
+- 図解・AI音声・AI動画中心
+- 作業を最小化
+- 1テーマから6媒体へ展開
+- 誇張しない
+- 要確認は要確認と書く
+- 実際に検証した内容を優先
+- 収益導線を自然に組み込む
+
+# 今日のテーマ
+${theme||"未入力"}
+
+# 投稿タイプ
+${type}
+
+# 今日の目的
+${goal||"保存される投稿を作り、SNSから収益導線へつなげる"}
+
+# 出力
+1. Instagramカルーセル構成 7〜10枚
+2. Instagramキャプション
+3. Threads投稿 3案
+4. X投稿 3案
+5. TikTok/YouTube Shorts 30秒台本
+6. AI音声ナレーション
+7. Canva画像指示
+8. CapCut編集指示
+9. CTA 3案
+10. ハッシュタグ
+11. アフィリエイト導線候補
+12. 投稿前チェックリスト
+13. NEXORA Production Score 100点採点
+14. 改善案
+
+そのままNotionへ保存できる形式で出力してください。`;
+}
+
+function Section({title,icon:Icon,children}){return <section className="panel"><div className="section-title"><Icon size={19}/><h2>{title}</h2></div>{children}</section>}
+function LinkButton({name,url,primary}){return <a className={`link-btn ${primary?"primary":""}`} href={url} target="_blank" rel="noreferrer"><span>{name}</span><ExternalLink size={15}/></a>}
+
+function App(){
+const[active,setActive]=useState("dashboard");
+const[theme,setTheme]=useState("");
+const[type,setType]=useState("初心者向け");
+const[goal,setGoal]=useState("");
+const prompt=useMemo(()=>makePrompt(theme,type,goal),[theme,type,goal]);
+const copy=async()=>{await navigator.clipboard.writeText(prompt);alert("コピーしました")};
+
+const nav=[
+["dashboard",Home,"Dashboard"],["ceo",Target,"CEO Mode"],["studio",WandSparkles,"Content Studio"],["ai",Bot,"AI Hub"],["prompts",Library,"Prompt Library"],["buzz",Flame,"Buzz Lab"],["ideas",Lightbulb,"Idea Vault"],["calendar",CalendarDays,"Calendar"],["money",WalletCards,"Affiliate"],["analytics",ChartNoAxesCombined,"Analytics"],["automation",Workflow,"Automation"],["settings",Settings,"Settings"]
+];
+
+return <div className="app">
+<aside className="sidebar">
+<div className="brand"><div className="mark">N</div><div><div className="brand-name">NEXORA</div><div className="brand-sub">AI OS v2 Complete</div></div></div>
+{nav.map(([k,I,l])=><button key={k} onClick={()=>setActive(k)} className={`nav ${active===k?"on":""}`}><I size={18}/>{l}</button>)}
+</aside>
+
+<main className="main">
+<header className="top">
+<div><p className="eyebrow">SECURE AI COMMAND CENTER</p><h1>NEXORA AI OS</h1><p className="lead">AIと仕組みで、仕事をもっと自由に。健さんは作業ではなく判断に集中する。</p></div>
+<div className="security"><ShieldCheck size={18}/>Basic Auth Ready</div>
+</header>
+
+<div className="metrics">
+<div className="metric"><b>1</b><span>今日のテーマ</span></div>
+<div className="metric"><b>6</b><span>媒体展開</span></div>
+<div className="metric"><b>30-60m</b><span>作業目標</span></div>
+<div className="metric"><b>95%</b><span>AI化目標</span></div>
+</div>
+
+{active==="dashboard"&&<div className="grid">
+<Section title="今日のCEOタスク" icon={Target}><div className="todo"><label><input type="checkbox"/> 今日のテーマを1つ決める</label><label><input type="checkbox"/> One Commandで投稿案を作る</label><label><input type="checkbox"/> Canva/CapCutで素材化</label><label><input type="checkbox"/> 投稿後に数字を記録</label></div></Section>
+<Section title="Quick Launch" icon={Sparkles}>{links.ai.map((l,i)=><LinkButton key={l[0]} name={l[0]} url={l[1]} primary={i===0}/>)}</Section>
+<Section title="制作・管理" icon={BrainCircuit}>{links.create.map(l=><LinkButton key={l[0]} name={l[0]} url={l[1]}/>)}</Section>
+<Section title="SNS運営" icon={Megaphone}>{links.sns.map(l=><LinkButton key={l[0]} name={l[0]} url={l[1]}/>)}</Section>
+</div>}
+
+{active==="ceo"&&<Section title="CEO Mode" icon={Rocket}><p className="small">朝はここだけ見ます。今日やることを最大3つに絞り、判断だけします。</p><div className="sop"><b>朝</b><span>テーマ選定 → 生成 → 投稿準備</span><b>昼</b><span>投稿 / 反応確認</span><b>夜</b><span>KPI記録 / 改善メモ</span></div></Section>}
+
+{active==="studio"&&<Section title="One Command Generator" icon={WandSparkles}>
+<label>テーマ</label><input value={theme} onChange={e=>setTheme(e.target.value)} placeholder="例：ChatGPTで仕事を10分短縮する使い方3選"/>
+<label>投稿タイプ</label><select value={type} onChange={e=>setType(e.target.value)}><option>初心者向け</option><option>神機能紹介</option><option>比較</option><option>ランキング</option><option>レビュー</option><option>失敗例</option></select>
+<label>今日の目的</label><input value={goal} onChange={e=>setGoal(e.target.value)} placeholder="例：保存数を増やし、AIツール案件へつなげる"/>
+<button className="copy" onClick={copy}><Copy size={17}/> プロンプトをコピー</button><pre className="prompt">{prompt}</pre>
+</Section>}
+
+{active==="ai"&&<div className="grid">{roles.map(a=><Section key={a[0]} title={a[0]} icon={Bot}><p className="role">{a[1]}</p><p className="small">{a[2]}</p></Section>)}</div>}
+
+{active==="prompts"&&<div className="grid">{commandList.map(c=><Section key={c[0]} title={`${c[0]} ${c[1]}`} icon={KeyRound}><p className="small">{c[2]}</p></Section>)}</div>}
+
+{active==="buzz"&&<Section title="Buzz Lab" icon={Flame}><p className="small">伸びた投稿のURL、フック、サムネ、尺、コメント欄、再現案を保存する場所です。</p><div className="placeholder">次フェーズ：バズ投稿DB / 競合分析 / 保存数分析</div></Section>}
+
+{active==="ideas"&&<Section title="Idea Vault" icon={Lightbulb}><p className="small">思いつき・ネタ・違和感を保存。AIが「伸びる/弱い/改善可能」を判定する場所です。</p><div className="placeholder">次フェーズ：ネタ採点 / 優先順位 / 投稿化</div></Section>}
+
+{active==="calendar"&&<Section title="Content Calendar" icon={CalendarDays}><p className="small">30日分の投稿予定を管理します。</p><div className="placeholder">次フェーズ：カレンダー / 投稿予約 / リマインダー</div></Section>}
+
+{active==="money"&&<div className="grid">{links.asp.map(l=><Section key={l[0]} title={l[0]} icon={WalletCards}><LinkButton name="管理画面を開く" url={l[1]}/></Section>)}</div>}
+
+{active==="analytics"&&<Section title="Analytics" icon={Gauge}><p className="small">投稿数・再生数・保存数・クリック数・売上を記録し、改善案を出します。</p><div className="placeholder">次フェーズ：Google Sheets連携 / 自動グラフ</div></Section>}
+
+{active==="automation"&&<Section title="Automation" icon={Workflow}><p className="small">Notion・Sheets・WordPress・SNS投稿の自動化を段階的に追加します。</p><div className="placeholder">n8n / GAS / API Manager 準備中</div></Section>}
+
+{active==="settings"&&<Section title="Settings" icon={Settings}><div className="settings-list"><span><Link2 size={14}/> Notion連携：未接続</span><span><Database size={14}/> Google Sheets：未接続</span><span><Search size={14}/> WordPress：未接続</span><span><CheckCircle2 size={14}/> GitHub / Vercel：接続準備</span></div></Section>}
+</main>
+</div>
+}
+
+createRoot(document.getElementById("root")).render(<App/>);

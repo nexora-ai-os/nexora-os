@@ -1,5 +1,5 @@
 import { useState } from "react";
-import AffiliateHub from "./pages/AffiliateHub";
+import AffiliateHub from "./src/pages/AffiliateHub";
 import "./styles.css";
 
 const menuItems = [

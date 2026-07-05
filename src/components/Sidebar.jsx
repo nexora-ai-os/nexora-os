@@ -1,5 +1,6 @@
 const navItems = [
   ["dashboard", "🏠 Dashboard"],
+  ["work", "🧠 Work Command"],
   ["affiliate", "💰 Affiliate Hub"],
   ["content", "✍️ Content Studio"],
   ["approval", "✅ Approval Center"],
@@ -15,7 +16,7 @@ export default function Sidebar({ page, setPage }) {
         <div className="logo">N</div>
         <div>
           <h2>NEXORA</h2>
-          <p>AI OS v1.7</p>
+          <p>AI OS v1.8</p>
         </div>
       </div>
 

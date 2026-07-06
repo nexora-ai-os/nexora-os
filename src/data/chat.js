@@ -2,6 +2,6 @@ export const initialChatMessages = [
   {
     id: 1,
     role: "assistant",
-    text: "健さん、今日の優先順位は「高スコア案件を1つ選ぶ → 投稿生成 → 承認」です。まずPLAUDから始めるのが堅いです。",
+    text: "健さん、KEVIRIOへようこそ。今日の目的は、仕事を整理し、収益につながる作業を最短で進めることです。まずMission Controlで優先順位を確認しましょう。",
   },
 ];

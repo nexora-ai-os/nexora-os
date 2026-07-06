@@ -358,3 +358,12 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .work-card .actions {
   flex-wrap: wrap;
 }
+
+
+.work-card .card-header {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 12px;
+}

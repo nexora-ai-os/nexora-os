@@ -1,9 +1,16 @@
-# NEXORA AI OS v1.8
+# KEVIRIO OS v2.0
 
-## v1.8 additions
-- Work Command screen
-- Opportunity analysis
-- AI work queue
-- Analysis to Content Studio workflow
-- Dashboard Work Queue count
-- Existing v1.7 AI Assistant workflow retained
+AI Business Operating System.
+
+## Brand Direction
+- 自然 × AI × 神秘性 × 高級感
+- Living Intelligence
+- 人は創造へ。AIは実行へ。
+
+## v2.0
+- NEXORAからKEVIRIOへブランド移行
+- Mission Control UI
+- Light premium design system
+- BrandMark component
+- KEVIRIO favicon / page title
+- Existing Work Command, AI Companion, Content Studio, Approval, Analytics retained

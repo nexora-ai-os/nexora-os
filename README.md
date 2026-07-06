@@ -1,15 +1,20 @@
-# KEVIRIO OS v2.6
+# KEVIRIO OS v2.7
 
-## v2.6 AI Work Analysis
-- Work Engine now calls `/api/ai`
-- AI analysis for each work item
-- Fact / assumption / opinion / priority / compliance / next actions
-- AI report is saved into each work item
-- Work item deletion
-- Better work registration fields
+## v2.7 Work Flow Bridge
+- Work Engine → Mission Control
+- Work Engine → Content Studio
+- Work Engine → Approval Center
+- Work Engine → AI Companion
+- Notifications on workflow actions
+
+## Replace files
+```txt
+src/components/WorkEngine.jsx
+src/App.jsx
+README.md
+```
 
 ## Required Environment Variables
-
 ```txt
 OPENAI_API_KEY=sk-...
 GEMINI_API_KEY=AQ...

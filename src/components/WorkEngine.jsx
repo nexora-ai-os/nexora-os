@@ -5,9 +5,12 @@ export default function WorkEngine({
   workItems,
   setWorkItems,
   setMissionTasks,
+  setDraft,
+  setApprovals,
+  setNotifications,
   setPage,
 }) {
-  const [draft, setDraft] = useState({
+  const [draft, setDraftLocal] = useState({
     title: "",
     source: "Manual",
     type: "sales",
@@ -48,7 +51,7 @@ export default function WorkEngine({
       ...prev,
     ]);
 
-    setDraft((prev) => ({ ...prev, title: "", description: "" }));
+    setDraftLocal((prev) => ({ ...prev, title: "", description: "" }));
   };
 
   const pushToMission = (item) => {
@@ -64,7 +67,93 @@ export default function WorkEngine({
     }));
 
     setMissionTasks((prev) => [...tasks, ...prev]);
+    setNotifications?.((prev) => [
+      {
+        id: Date.now(),
+        title: "Missionにタスクを追加しました",
+        body: `${item.title}から${tasks.length}件のタスクを生成しました。`,
+        read: false,
+      },
+      ...prev,
+    ]);
     setPage("dashboard");
+  };
+
+  const sendToContent = (item) => {
+    const title =
+      item.type === "affiliate"
+        ? `${item.title}｜AI活用・時短・収益化につなげる投稿`
+        : `${item.title}｜提案文・応募文のたたき台`;
+
+    const body = `テーマ：${item.title}
+カテゴリ：${item.category}
+想定報酬：${item.reward.toLocaleString()}円
+ROI：${item.roiPerHour.toLocaleString()}円/h
+
+【狙い】
+${item.description || "この仕事を収益につながる導線へ変換する。"}
+
+【構成案】
+1. 結論：なぜ今このテーマが重要か
+2. 課題：読者・顧客が抱えている問題
+3. 解決策：KEVIRIO視点での提案
+4. 実行：今日やるべき具体策
+5. 注意点：誇大表現・法務リスクを避ける
+6. CTA：相談・応募・比較・導入へつなげる
+
+【コンプラ注意】
+${item.riskComment}
+
+【次に作るもの】
+${item.nextActions.map((action) => `・${action}`).join("\n")}
+`;
+
+    setDraft({
+      title,
+      channel: item.type === "affiliate" ? "Blog / Instagram / Threads" : "応募文 / 営業文",
+      body,
+      asp: item.source || "KEVIRIO",
+      value: item.reward || 1000,
+    });
+
+    setNotifications?.((prev) => [
+      {
+        id: Date.now(),
+        title: "Content Studioに下書きを送信",
+        body: item.title,
+        read: false,
+      },
+      ...prev,
+    ]);
+    setPage("content");
+  };
+
+  const sendToApproval = (item) => {
+    setApprovals((prev) => [
+      {
+        id: Date.now(),
+        title: item.title,
+        channel: item.type === "affiliate" ? "Blog / SNS" : "営業 / 応募",
+        asp: item.source || "KEVIRIO",
+        time: "今日",
+        status: "承認待ち",
+        value: item.reward || 1000,
+        counted: false,
+        risk: item.riskComment,
+      },
+      ...prev,
+    ]);
+
+    setNotifications?.((prev) => [
+      {
+        id: Date.now(),
+        title: "Approval Centerに追加",
+        body: `${item.title}を承認待ちへ送信しました。`,
+        read: false,
+      },
+      ...prev,
+    ]);
+    setPage("approval");
   };
 
   const sendToAI = (item) => {
@@ -129,10 +218,10 @@ export default function WorkEngine({
   return (
     <main className="content">
       <section className="hero">
-        <p className="eyebrow">AI WORK ENGINE v2.6</p>
-        <h1>仕事を入れる。AIが分析する。</h1>
+        <p className="eyebrow">AI WORK ENGINE v2.7</p>
+        <h1>仕事を入れる。AIが流す。</h1>
         <p className="lead">
-          案件・A8・営業タスクを登録すると、ROI・優先順位・リスクに加えて、AIが実行計画まで作成します。
+          案件を登録し、AI解析・Mission化・Content Studio下書き・Approval承認までつなげます。
         </p>
       </section>
 
@@ -153,20 +242,20 @@ export default function WorkEngine({
         </div>
 
         <div className="work-form">
-          <input className="search" placeholder="仕事名 / 案件名" value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} />
-          <textarea className="prompt-box textarea compact" placeholder="内容メモ" value={draft.description} onChange={(e) => setDraft({ ...draft, description: e.target.value })} />
+          <input className="search" placeholder="仕事名 / 案件名" value={draft.title} onChange={(e) => setDraftLocal({ ...draft, title: e.target.value })} />
+          <textarea className="prompt-box textarea compact" placeholder="内容メモ" value={draft.description} onChange={(e) => setDraftLocal({ ...draft, description: e.target.value })} />
           <div className="toolbar">
-            <select className="search small" value={draft.type} onChange={(e) => setDraft({ ...draft, type: e.target.value })}>
+            <select className="search small" value={draft.type} onChange={(e) => setDraftLocal({ ...draft, type: e.target.value })}>
               <option value="sales">営業</option>
               <option value="affiliate">アフィリエイト</option>
               <option value="content">コンテンツ</option>
             </select>
-            <input className="search small" value={draft.category} onChange={(e) => setDraft({ ...draft, category: e.target.value })} placeholder="カテゴリ" />
-            <input className="search small" type="number" value={draft.reward} onChange={(e) => setDraft({ ...draft, reward: e.target.value })} placeholder="報酬" />
-            <input className="search small" type="number" step="0.25" value={draft.estimatedHours} onChange={(e) => setDraft({ ...draft, estimatedHours: e.target.value })} placeholder="時間" />
-            <input className="search small" type="number" min="1" max="5" value={draft.urgency} onChange={(e) => setDraft({ ...draft, urgency: e.target.value })} placeholder="緊急度" />
-            <input className="search small" type="number" min="1" max="5" value={draft.strategicFit} onChange={(e) => setDraft({ ...draft, strategicFit: e.target.value })} placeholder="相性" />
-            <input className="search small" type="number" min="1" max="5" value={draft.complianceRisk} onChange={(e) => setDraft({ ...draft, complianceRisk: e.target.value })} placeholder="リスク" />
+            <input className="search small" value={draft.category} onChange={(e) => setDraftLocal({ ...draft, category: e.target.value })} placeholder="カテゴリ" />
+            <input className="search small" type="number" value={draft.reward} onChange={(e) => setDraftLocal({ ...draft, reward: e.target.value })} placeholder="報酬" />
+            <input className="search small" type="number" step="0.25" value={draft.estimatedHours} onChange={(e) => setDraftLocal({ ...draft, estimatedHours: e.target.value })} placeholder="時間" />
+            <input className="search small" type="number" min="1" max="5" value={draft.urgency} onChange={(e) => setDraftLocal({ ...draft, urgency: e.target.value })} placeholder="緊急度" />
+            <input className="search small" type="number" min="1" max="5" value={draft.strategicFit} onChange={(e) => setDraftLocal({ ...draft, strategicFit: e.target.value })} placeholder="相性" />
+            <input className="search small" type="number" min="1" max="5" value={draft.complianceRisk} onChange={(e) => setDraftLocal({ ...draft, complianceRisk: e.target.value })} placeholder="リスク" />
           </div>
         </div>
       </section>
@@ -177,7 +266,7 @@ export default function WorkEngine({
             <p className="eyebrow">ANALYSIS QUEUE</p>
             <h2>Work Engine判断</h2>
           </div>
-          <span className="badge">ROI + AI</span>
+          <span className="badge">ROI + Flow</span>
         </div>
 
         <div className="grid">
@@ -212,6 +301,8 @@ export default function WorkEngine({
                   {loadingId === item.id ? "AI解析中..." : "AI解析"}
                 </button>
                 <button onClick={() => pushToMission(item)}>Missionへ送る</button>
+                <button onClick={() => sendToContent(item)}>Contentへ送る</button>
+                <button onClick={() => sendToApproval(item)}>Approvalへ送る</button>
                 <button onClick={() => sendToAI(item)}>AIに実行計画</button>
                 <button onClick={() => removeWorkItem(item.id)}>削除</button>
               </div>

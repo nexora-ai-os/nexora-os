@@ -1,25 +1,16 @@
-# KEVIRIO OS v2.2
+# KEVIRIO OS v2.3
 
-AI Business Operating System.
-
-## v2.2
-- KEVIRIO Core
-- OpenAI / Gemini model router
-- Work Templates
-- Provider selector
-- Mode selector
-- Practical templates for daily revenue work
+## v2.3 Mission Control
+- Daily mission priority
+- Mission task data
+- Revenue-first task value
+- AI Brief: facts / assumptions / opinion
+- Mission Control can pass current context to KEVIRIO Core
 
 ## Required Environment Variables
 
 ```txt
 OPENAI_API_KEY=sk-...
 GEMINI_API_KEY=AQ...
-```
-
-Optional:
-
-```txt
-OPENAI_MODEL=gpt-4.1-mini
-GEMINI_MODEL=gemini-1.5-flash
+GEMINI_MODEL=gemini-2.5-flash
 ```

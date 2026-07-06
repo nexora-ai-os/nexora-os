@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { workTemplates } from "../data/templates";
 
 export default function AIAssistant({
@@ -15,6 +15,14 @@ export default function AIAssistant({
   const [mode, setMode] = useState("general");
 
   const waitingApprovals = approvals.filter((a) => a.status === "承認待ち").length;
+
+  useEffect(() => {
+    const pending = localStorage.getItem("kevirio-pending-ai-message");
+    if (pending) {
+      localStorage.removeItem("kevirio-pending-ai-message");
+      setInput(pending);
+    }
+  }, []);
 
   const askAI = async (message, selectedMode = mode) => {
     const cleanMessage = message.trim();

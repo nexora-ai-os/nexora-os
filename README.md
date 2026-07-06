@@ -1,11 +1,12 @@
-# KEVIRIO OS v2.3
+# KEVIRIO OS v2.4
 
-## v2.3 Mission Control
-- Daily mission priority
-- Mission task data
-- Revenue-first task value
-- AI Brief: facts / assumptions / opinion
-- Mission Control can pass current context to KEVIRIO Core
+## v2.4 Mission Brain
+- AI-style business priority engine
+- Business Confidence Score
+- ROI / expected impact / task ranking
+- A8 affiliate recommendations
+- Risk detection
+- Mission Brain can send a structured plan to KEVIRIO Core
 
 ## Required Environment Variables
 

@@ -1,12 +1,12 @@
-# KEVIRIO OS v2.4
+# KEVIRIO OS v2.5
 
-## v2.4 Mission Brain
-- AI-style business priority engine
-- Business Confidence Score
-- ROI / expected impact / task ranking
-- A8 affiliate recommendations
-- Risk detection
-- Mission Brain can send a structured plan to KEVIRIO Core
+## v2.5 AI Work Engine
+- Work Engine page
+- Work item registration
+- ROI / score / priority decision
+- Auto-generated next actions
+- Push generated tasks to Mission Control
+- Send execution plan to KEVIRIO Core
 
 ## Required Environment Variables
 

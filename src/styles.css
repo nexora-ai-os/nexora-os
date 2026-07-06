@@ -323,3 +323,13 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
     grid-template-columns: 1fr;
   }
 }
+
+
+.work-form {
+  display: grid;
+  gap: 12px;
+}
+
+.prompt-box.compact {
+  min-height: 120px;
+}

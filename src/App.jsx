@@ -4,6 +4,7 @@ import "./styles.css";
 import Sidebar from "./components/Sidebar";
 import Dashboard from "./components/Dashboard";
 import WorkCommand from "./components/WorkCommand";
+import WorkEngine from "./components/WorkEngine";
 import AffiliateHub from "./components/AffiliateHub";
 import ContentStudio from "./components/ContentStudio";
 import ApprovalCenter from "./components/ApprovalCenter";
@@ -23,6 +24,7 @@ import { initialChatMessages } from "./data/chat";
 import { initialOpportunities } from "./data/opportunities";
 import { initialPipelineRuns } from "./data/pipeline";
 import { initialMissionTasks } from "./data/tasks";
+import { initialWorkItems } from "./data/workItems";
 
 export default function App() {
   const [page, setPage] = useState("dashboard");
@@ -38,6 +40,7 @@ export default function App() {
   const [opportunities, setOpportunities] = useLocalStorage("nexora-opportunities", initialOpportunities, setSavedAt);
   const [pipelineRuns, setPipelineRuns] = useLocalStorage("kevirio-pipeline-runs", initialPipelineRuns, setSavedAt);
   const [missionTasks, setMissionTasks] = useLocalStorage("kevirio-mission-tasks", initialMissionTasks, setSavedAt);
+  const [workItems, setWorkItems] = useLocalStorage("kevirio-work-items", initialWorkItems, setSavedAt);
 
   const resetAll = () => {
     const ok = window.confirm("保存データを初期化しますか？");
@@ -63,6 +66,7 @@ export default function App() {
     setOpportunities(initialOpportunities);
     setPipelineRuns(initialPipelineRuns);
     setMissionTasks(initialMissionTasks);
+    setWorkItems(initialWorkItems);
     setPage("dashboard");
     setSavedAt("初期化済み");
   };

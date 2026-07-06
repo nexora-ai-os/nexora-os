@@ -1,0 +1,26 @@
+export const affiliatePrograms = [
+  {
+    id: "furdi",
+    name: "FÜRDI",
+    company: "株式会社FÜRDI",
+    category: "AIフィットネス",
+    reward: 7000,
+    maxReward: 13670,
+    epc: 6.68,
+    status: "active",
+    angle: "AI×健康、女性向けフィットネス、生活改善、仕事効率化",
+    risk: "健康・美容表現は誇大表現に注意。効果保証は避ける。",
+  },
+  {
+    id: "panasonic-bistro",
+    name: "Panasonic foodable / AI Bistro",
+    company: "パナソニック株式会社",
+    category: "AI家電・食のサブスク",
+    reward: 5000,
+    maxReward: 5000,
+    epc: 0,
+    status: "active",
+    angle: "AI×家電、時短、家事効率化、暮らしの自動化",
+    risk: "公式情報と異なる性能表現・価格表現に注意。",
+  },
+];

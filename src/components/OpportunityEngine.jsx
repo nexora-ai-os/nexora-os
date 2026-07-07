@@ -17,7 +17,7 @@ export default function OpportunityEngine({
   setDraft,
   setPage,
 }) {
-  const [draft, setDraft] = useState({
+  const [draft, setOpportunityDraft] = useState({
     title: "",
     program: "",
     source: "Manual",
@@ -58,7 +58,7 @@ export default function OpportunityEngine({
       ...prev,
     ]);
 
-    setDraft((prev) => ({ ...prev, title: "", memo: "", program: "" }));
+    setOpportunityDraft((prev) => ({ ...prev, title: "", memo: "", program: "" }));
   };
 
   const resetSamples = () => {
@@ -209,19 +209,19 @@ ${lines}
           <button onClick={addOpportunity}>追加</button>
         </div>
         <div className="work-form">
-          <input className="search" placeholder="テーマ / 案件名" value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} />
-          <textarea className="prompt-box textarea compact" placeholder="メモ / 狙い" value={draft.memo} onChange={(e) => setDraft({ ...draft, memo: e.target.value })} />
+          <input className="search" placeholder="テーマ / 案件名" value={draft.title} onChange={(e) => setOpportunityDraft({ ...draft, title: e.target.value })} />
+          <textarea className="prompt-box textarea compact" placeholder="メモ / 狙い" value={draft.memo} onChange={(e) => setOpportunityDraft({ ...draft, memo: e.target.value })} />
           <div className="toolbar">
-            <input className="search small" placeholder="関連案件" value={draft.program} onChange={(e) => setDraft({ ...draft, program: e.target.value })} />
-            <input className="search small" placeholder="取得元" value={draft.source} onChange={(e) => setDraft({ ...draft, source: e.target.value })} />
-            <input className="search small" type="number" value={draft.expectedRevenue} onChange={(e) => setDraft({ ...draft, expectedRevenue: e.target.value })} placeholder="期待売上" />
-            <input className="search small" type="number" step="0.25" value={draft.expectedHours} onChange={(e) => setDraft({ ...draft, expectedHours: e.target.value })} placeholder="時間" />
-            <input className="search small" type="number" value={draft.trend} onChange={(e) => setDraft({ ...draft, trend: e.target.value })} placeholder="Trend" />
-            <input className="search small" type="number" value={draft.revenue} onChange={(e) => setDraft({ ...draft, revenue: e.target.value })} placeholder="Revenue" />
-            <input className="search small" type="number" value={draft.competition} onChange={(e) => setDraft({ ...draft, competition: e.target.value })} placeholder="Competition" />
-            <input className="search small" type="number" value={draft.authority} onChange={(e) => setDraft({ ...draft, authority: e.target.value })} placeholder="Authority" />
-            <input className="search small" type="number" value={draft.compliance} onChange={(e) => setDraft({ ...draft, compliance: e.target.value })} placeholder="Compliance" />
-            <input className="search small" type="number" value={draft.evergreen} onChange={(e) => setDraft({ ...draft, evergreen: e.target.value })} placeholder="Evergreen" />
+            <input className="search small" placeholder="関連案件" value={draft.program} onChange={(e) => setOpportunityDraft({ ...draft, program: e.target.value })} />
+            <input className="search small" placeholder="取得元" value={draft.source} onChange={(e) => setOpportunityDraft({ ...draft, source: e.target.value })} />
+            <input className="search small" type="number" value={draft.expectedRevenue} onChange={(e) => setOpportunityDraft({ ...draft, expectedRevenue: e.target.value })} placeholder="期待売上" />
+            <input className="search small" type="number" step="0.25" value={draft.expectedHours} onChange={(e) => setOpportunityDraft({ ...draft, expectedHours: e.target.value })} placeholder="時間" />
+            <input className="search small" type="number" value={draft.trend} onChange={(e) => setOpportunityDraft({ ...draft, trend: e.target.value })} placeholder="Trend" />
+            <input className="search small" type="number" value={draft.revenue} onChange={(e) => setOpportunityDraft({ ...draft, revenue: e.target.value })} placeholder="Revenue" />
+            <input className="search small" type="number" value={draft.competition} onChange={(e) => setOpportunityDraft({ ...draft, competition: e.target.value })} placeholder="Competition" />
+            <input className="search small" type="number" value={draft.authority} onChange={(e) => setOpportunityDraft({ ...draft, authority: e.target.value })} placeholder="Authority" />
+            <input className="search small" type="number" value={draft.compliance} onChange={(e) => setOpportunityDraft({ ...draft, compliance: e.target.value })} placeholder="Compliance" />
+            <input className="search small" type="number" value={draft.evergreen} onChange={(e) => setOpportunityDraft({ ...draft, evergreen: e.target.value })} placeholder="Evergreen" />
           </div>
         </div>
       </section>

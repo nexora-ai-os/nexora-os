@@ -86,7 +86,7 @@ Confidence:${workflow.confidence}%
         <p className="eyebrow">WORKFLOW AUTOMATION v3.1</p>
         <h1>案件を選ぶ。AIが会社の流れに乗せる。</h1>
         <p className="lead">
-          Trend・Work候補を、Mission・Content・Approvalへ接続します。AIは提案と準備まで。最終決裁は必ずオーナーです。
+          Trend・Work候補を、Connection Core経由でMission・Content・Approvalへ接続します。AIは提案と準備まで。最終決裁は必ずオーナーです。
         </p>
       </section>
 

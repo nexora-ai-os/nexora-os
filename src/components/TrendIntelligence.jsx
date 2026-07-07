@@ -80,6 +80,9 @@ ${item.memo}
 5. 注意点：誇大表現を避け、事実と推測を分ける
 6. CTA：保存・相談・比較・導入へ誘導
 
+【Connection Core】
+この下書きはTrend IntelligenceからContent Studioへ連携されました。
+
 【注意】
 最終公開前にApproval Centerで表現チェックを行うこと。
 `,

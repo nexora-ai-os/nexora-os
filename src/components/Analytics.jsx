@@ -6,6 +6,7 @@ export default function Analytics({ analytics, approvals, savedAt }) {
 
   return (
     <main className="content">
+      <section className="panel"><p className="eyebrow">CONNECTION CORE</p><h2>承認・売上・ROIをここで確認</h2><div className="mission-list"><div>Approvalで承認した案件の成果を記録し、AI CEOの判断材料にします。</div></div></section>
       <TopBar savedAt={savedAt} />
 
       <div className="panel">

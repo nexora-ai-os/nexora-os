@@ -37,6 +37,7 @@ export default function ApprovalCenter({ approvals, setApprovals, setAnalytics, 
 
   return (
     <main className="content">
+      <section className="panel"><p className="eyebrow">CONNECTION CORE</p><h2>承認後の次アクション</h2><div className="mission-list"><div>承認した案件はAnalyticsで売上・ROI確認へ進めてください。</div><div>公開・投稿・送信はオーナー最終決裁後に実行してください。</div></div></section>
       <TopBar notifications={waiting} savedAt={savedAt} />
 
       <div className="panel">

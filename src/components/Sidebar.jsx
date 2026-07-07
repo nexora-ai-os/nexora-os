@@ -3,6 +3,7 @@ import BrandMark from "./BrandMark";
 const navItems = [
   ["ceo", "👑 AI CEO"],
   ["apiCenter", "🔌 API Control"],
+  ["opportunity", "💰 Opportunity Engine"],
   ["trends", "📡 Trend Intelligence"],
   ["workflows", "⚙️ Workflow Automation"],
   ["dashboard", "🌿 Mission Control"],

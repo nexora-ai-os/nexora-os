@@ -497,3 +497,24 @@ nav.sidebar::-webkit-scrollbar-track {
   font-weight: 800;
   color: #315044;
 }
+
+
+/* KEVIRIO automation loop v3.5 */
+.connection-panel {
+  border: 1px solid rgba(33, 142, 93, 0.14);
+}
+
+.connection-panel .mission-list {
+  margin-top: 16px;
+}
+
+.card button,
+.actions button {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card button:hover,
+.actions button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(38, 85, 62, 0.10);
+}

@@ -406,3 +406,26 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
     grid-template-columns: 1fr;
   }
 }
+
+
+.trend-bars {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.trend-bars div {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 10px;
+  align-items: center;
+  color: #65717A;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.trend-bars progress {
+  width: 100%;
+  height: 10px;
+  accent-color: var(--emerald);
+}

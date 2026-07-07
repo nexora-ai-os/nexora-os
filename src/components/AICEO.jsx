@@ -1,4 +1,5 @@
 import { buildCEOBrief } from "../services/ceoEngine";
+import { buildAgentBoardReport, buildGovernanceChecklist } from "../services/agentEngine";
 
 export default function AICEO({
   workItems,
@@ -9,6 +10,8 @@ export default function AICEO({
   setPage,
 }) {
   const brief = buildCEOBrief({ workItems, missionTasks, approvals, analytics, pipelineRuns });
+  const agentBoard = buildAgentBoardReport({ workItems, missionTasks, approvals, analytics, pipelineRuns });
+  const governanceChecklist = buildGovernanceChecklist();
 
   const sendCEOBriefToAI = () => {
     const workLines = brief.rankedWork
@@ -16,7 +19,7 @@ export default function AICEO({
       .map((item, index) => `${index + 1}. ${item.title} / Score:${item.ceoScore} / ROI:${item.roiPerHour}円/h / 理由:${item.reason}`)
       .join("\n");
 
-    const message = `あなたはKEVIRIOのAI CEOです。今日の経営指示を出してください。\n\nCEO Score:${brief.ceoScore}\n現在売上:${brief.revenue}円\n月間目標:${brief.monthlyGoal}円\n残り:${brief.remaining}円\n今日の期待売上:${brief.todayExpectedRevenue}円\n承認待ち:${brief.waitingApprovals.length}件\nPipeline:${brief.pipelineCount}件\n\n優先仕事:\n${workLines}\n\nリスク:\n${brief.risks.join(" / ")}\n\n出力は「事実」「推測」「意見」「今日のCEO指示」「最初の1アクション」でお願いします。`;
+    const message = `あなたはKEVIRIOのAI CEOです。今日の経営指示を出してください。\n\nCEO Score:${brief.ceoScore}\n現在売上:${brief.revenue}円\n月間目標:${brief.monthlyGoal}円\n残り:${brief.remaining}円\n今日の期待売上:${brief.todayExpectedRevenue}円\n承認待ち:${brief.waitingApprovals.length}件\nPipeline:${brief.pipelineCount}件\n\n優先仕事:\n${workLines}\n\nリスク:\n${brief.risks.join(" / ")}\n\nAI Board:\n${agentBoard.board.map((a) => `${a.role}: ${a.opinion}`).join("\\n")}\n\n出力は「事実」「推測」「意見」「今日のCEO指示」「やらないこと」「最終決裁待ち」でお願いします。`;
 
     localStorage.setItem("kevirio-pending-ai-message", message);
     setPage("assistant");
@@ -60,6 +63,45 @@ export default function AICEO({
         <div className="stat-card"><span>Pipeline</span><strong>{brief.pipelineCount}件</strong><p>一括処理履歴</p></div>
         <div className="stat-card"><span>未完了Mission</span><strong>{brief.openTasks.length}件</strong><p>今日の実行対象</p></div>
       </div>
+
+      <section className="panel">
+        <div className="section-head">
+          <div>
+            <p className="eyebrow">AI BOARD</p>
+            <h2>AI経営会議</h2>
+          </div>
+          <span className="badge">{agentBoard.finalDecision}</span>
+        </div>
+        <div className="grid">
+          {agentBoard.board.map((agent) => (
+            <div className="card agent-card" key={agent.role}>
+              <span className="badge">{agent.role}</span>
+              <h2>{agent.stance}</h2>
+              <p>{agent.opinion}</p>
+              <small>Confidence {agent.confidence}%</small>
+            </div>
+          ))}
+        </div>
+        <div className="mission-list">
+          <div>次の最善手｜{agentBoard.nextBestAction}</div>
+          <div>リスク｜{agentBoard.riskLevel}</div>
+        </div>
+      </section>
+
+      <section className="panel governance-panel">
+        <div className="section-head">
+          <div>
+            <p className="eyebrow">GOVERNANCE</p>
+            <h2>AI実行原則</h2>
+          </div>
+          <span className="badge">Owner Final</span>
+        </div>
+        <div className="mission-list">
+          {governanceChecklist.map((item) => (
+            <div key={item}>✅ {item}</div>
+          ))}
+        </div>
+      </section>
 
       <section className="panel">
         <div className="section-head">

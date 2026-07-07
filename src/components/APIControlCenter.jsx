@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { aiOrchestratorModes, runAIOrchestrator } from "../services/aiOrchestrator";
 
 const defaultStatus = {
   ok: false,
@@ -12,6 +13,8 @@ export default function APIControlCenter({ setPage }) {
   const [status, setStatus] = useState(defaultStatus);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [orchestratorResult, setOrchestratorResult] = useState(null);
+  const [orchestratorLoading, setOrchestratorLoading] = useState(false);
 
   const loadStatus = async () => {
     setLoading(true);
@@ -37,6 +40,29 @@ export default function APIControlCenter({ setPage }) {
   useEffect(() => {
     loadStatus();
   }, []);
+
+  const testOrchestrator = async (mode = "general") => {
+    setOrchestratorLoading(true);
+    setOrchestratorResult(null);
+
+    try {
+      const result = await runAIOrchestrator({
+        mode,
+        provider: "auto",
+        message:
+          "KEVIRIOのAI Orchestrator接続テストです。事実・推測・意見・要確認を分け、最終決裁はオーナーであることを明記してください。",
+      });
+
+      setOrchestratorResult(result);
+    } catch (err) {
+      setOrchestratorResult({
+        ok: false,
+        error: err.message,
+      });
+    } finally {
+      setOrchestratorLoading(false);
+    }
+  };
 
   const configured = status.providers.filter((provider) => provider.configured);
   const future = status.providers.filter((provider) => !provider.configured);
@@ -129,6 +155,46 @@ export default function APIControlCenter({ setPage }) {
           <div>{future.length > 0 ? `将来追加候補：${future.map((item) => item.name).join(" / ")}` : "すべての候補AIが設定済みです。"}</div>
           <div>次の優先：Workflow Automation → Opportunity Engine → Revenue OS</div>
         </div>
+      </section>
+
+      <section className="panel">
+        <div className="section-head">
+          <div>
+            <p className="eyebrow">AI ORCHESTRATOR</p>
+            <h2>AIルーティング基盤</h2>
+          </div>
+          <span className="badge">{orchestratorLoading ? "Testing" : "Ready"}</span>
+        </div>
+
+        <div className="grid">
+          {aiOrchestratorModes.map((mode) => (
+            <div className="card" key={mode.id}>
+              <span className="badge">{mode.provider}</span>
+              <h2>{mode.name}</h2>
+              <p>{mode.role}</p>
+              <div className="actions">
+                <button onClick={() => testOrchestrator(mode.id)} disabled={orchestratorLoading}>
+                  {orchestratorLoading ? "確認中..." : "接続テスト"}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {orchestratorResult && (
+          <div className="ai-report orchestrator-result">
+            <strong>
+              Orchestrator Result：
+              {orchestratorResult.ok ? `${orchestratorResult.provider} / ${orchestratorResult.model}` : "Error"}
+            </strong>
+            <p>
+              {orchestratorResult.ok
+                ? orchestratorResult.text
+                : orchestratorResult.error || "AI Orchestrator failed"}
+            </p>
+            {orchestratorResult.fallbackUsed && <small>Fallback used: yes</small>}
+          </div>
+        )}
       </section>
 
       <section className="panel">

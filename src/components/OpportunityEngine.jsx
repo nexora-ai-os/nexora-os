@@ -156,7 +156,7 @@ ${lines}
         <p className="eyebrow">OPPORTUNITY ENGINE v3.3</p>
         <h1>収益機会を見つけ、やるべき案件を決める。</h1>
         <p className="lead">
-          Trend・Revenue・Competition・Authority・Compliance・Evergreen・ROIを総合評価し、収益化の優先順位を提案します。Connection Coreへ連携可能です。
+          Trend・Revenue・Competition・Authority・Compliance・Evergreen・ROIを総合評価し、収益化の優先順位を提案します。Connection CoreでMission・Content・Approvalへ接続できます。
         </p>
         <div className="actions">
           <button onClick={askAI}>AIに収益判断を依頼</button>
@@ -253,8 +253,8 @@ ${lines}
                 <li>Risk：{item.risk}</li>
               </ul>
               <div className="actions">
-                <button onClick={() => sendToWorkflow(item)}>Workflow化</button>
-                <button onClick={() => sendToContent(item)}>Contentへ</button>
+                <button onClick={() => sendToWorkflow(item)}>Workflowへ送る</button>
+                <button onClick={() => sendToContent(item)}>Content下書き</button>
                 <button onClick={() => addMemory(item, "検証予定")}>Memory記録</button>
               </div>
             </div>

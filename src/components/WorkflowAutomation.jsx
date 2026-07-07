@@ -9,6 +9,7 @@ import {
 } from "../services/workflowEngine";
 import { analyzeTrends } from "../services/trendEngine";
 import { analyzeWorkItems } from "../services/workEngine";
+import { buildAutomationStatus as buildConnectionStatus } from "../services/connectionEngine";
 
 export default function WorkflowAutomation({
   workflows,
@@ -73,6 +74,8 @@ Confidence:${workflow.confidence}%
     setPage("assistant");
   };
 
+  const connectionStatus = buildConnectionStatus({ workflows, missionTasks: [], approvals: [], draft: null });
+
   const stats = {
     total: workflows.length,
     pending: workflows.filter((item) => item.status === "pending-owner").length,
@@ -96,6 +99,29 @@ Confidence:${workflow.confidence}%
         <div className="stat-card"><span>決裁待ち</span><strong>{stats.review}件</strong><p>最終確認</p></div>
         <div className="stat-card"><span>承認済み</span><strong>{stats.approved}件</strong><p>オーナー承認</p></div>
       </div>
+
+      <section className="panel connection-panel">
+        <div className="section-head">
+          <div>
+            <p className="eyebrow">AUTOMATION LOOP</p>
+            <h2>今の接続状態</h2>
+          </div>
+          <span className="badge">Score {connectionStatus.readinessScore}</span>
+        </div>
+        <div className="connection-flow">
+          <span>Opportunity / Trend</span>
+          <span>Workflow</span>
+          <span>Mission</span>
+          <span>Content</span>
+          <span>Approval</span>
+          <span>Analytics</span>
+          <span>AI CEO</span>
+        </div>
+        <div className="mission-list">
+          <div>次の最善手：{connectionStatus.nextBestAction}</div>
+          <div>原則：AIは準備まで。投稿・契約・送信・決済はオーナー承認後。</div>
+        </div>
+      </section>
 
       <section className="panel">
         <div className="section-head">
@@ -219,8 +245,8 @@ Confidence:${workflow.confidence}%
               </div>
 
               <div className="actions">
-                <button onClick={() => runWorkflow(workflow)}>Workflow実行</button>
-                <button onClick={() => askCEO(workflow)}>AI CEOレビュー</button>
+                <button onClick={() => runWorkflow(workflow)}>Mission・Content・Approvalへ流す</button>
+                <button onClick={() => askCEO(workflow)}>AI CEOに判断依頼</button>
                 <button onClick={() => updateDecision(workflow, "approve")}>承認</button>
                 <button onClick={() => updateDecision(workflow, "hold")}>保留</button>
                 <button onClick={() => updateDecision(workflow, "reject")}>却下</button>

@@ -97,7 +97,7 @@ ${item.memo}
         <p className="eyebrow">AI TREND INTELLIGENCE v3.0</p>
         <h1>世界の流れから、次に狙うテーマを決める。</h1>
         <p className="lead">
-          無料で確認できるトレンド情報・A8案件・自分との相性をもとに、Opportunity Scoreを算出します。最終決裁は必ずオーナーです。
+          無料で確認できるトレンド情報・A8案件・自分との相性をもとに、Opportunity Scoreを算出します。Workflow連携の前段として使います。最終決裁は必ずオーナーです。
         </p>
         <div className="actions">
           <button onClick={sendToAI}>AIに今日の狙いを決めさせる</button>
@@ -190,7 +190,7 @@ ${item.memo}
                 <div>Evergreen <progress value={item.evergreen} max="100" /></div>
               </div>
               <div className="actions">
-                <button onClick={() => sendToContent(item)}>Contentへ送る</button>
+                <button onClick={() => sendToContent(item)}>Content下書きへ</button>
               </div>
             </div>
           ))}

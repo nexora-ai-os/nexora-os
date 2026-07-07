@@ -473,3 +473,9 @@ nav.sidebar::-webkit-scrollbar-track {
   border-color: rgba(255, 91, 91, 0.25);
   background: rgba(255, 91, 91, 0.06);
 }
+
+
+/* KEVIRIO opportunity v3.3 */
+.card ul li {
+  line-height: 1.55;
+}

@@ -7,6 +7,7 @@ import AICEO from "./components/AICEO";
 import TrendIntelligence from "./components/TrendIntelligence";
 import WorkflowAutomation from "./components/WorkflowAutomation";
 import APIControlCenter from "./components/APIControlCenter";
+import OpportunityEngine from "./components/OpportunityEngine";
 import WorkCommand from "./components/WorkCommand";
 import WorkEngine from "./components/WorkEngine";
 import AffiliateHub from "./components/AffiliateHub";
@@ -48,6 +49,8 @@ export default function App() {
   const [workItems, setWorkItems] = useLocalStorage("kevirio-work-items", initialWorkItems, setSavedAt);
   const [trendItems, setTrendItems] = useLocalStorage("kevirio-trend-items", initialTrendItems, setSavedAt);
   const [workflows, setWorkflows] = useLocalStorage("kevirio-workflows", [], setSavedAt);
+  const [opportunities, setOpportunities] = useLocalStorage("kevirio-opportunities", initialOpportunities, setSavedAt);
+  const [businessMemory, setBusinessMemory] = useLocalStorage("kevirio-business-memory", initialBusinessMemory, setSavedAt);
 
   const resetAll = () => {
     const ok = window.confirm("保存データを初期化しますか？");
@@ -76,6 +79,8 @@ export default function App() {
     setWorkItems(initialWorkItems);
     setTrendItems(initialTrendItems);
     setWorkflows([]);
+    setOpportunities(initialOpportunities);
+    setBusinessMemory(initialBusinessMemory);
     setPage("dashboard");
     setSavedAt("初期化済み");
   };
@@ -83,6 +88,7 @@ export default function App() {
   const pages = {
     ceo: <AICEO workItems={workItems} missionTasks={missionTasks} approvals={approvals} analytics={analytics} pipelineRuns={pipelineRuns} setPage={setPage} />,
     apiCenter: <APIControlCenter setPage={setPage} />,
+    opportunity: <OpportunityEngine opportunities={opportunities} setOpportunities={setOpportunities} businessMemory={businessMemory} setBusinessMemory={setBusinessMemory} analytics={analytics} setWorkflows={setWorkflows} setDraft={setDraft} setPage={setPage} />,
     trends: <TrendIntelligence trendItems={trendItems} setTrendItems={setTrendItems} setDraft={setDraft} setPage={setPage} />,
     workflows: <WorkflowAutomation workflows={workflows} setWorkflows={setWorkflows} trendItems={trendItems} workItems={workItems} setMissionTasks={setMissionTasks} setDraft={setDraft} setApprovals={setApprovals} setNotifications={setNotifications} setPage={setPage} />,
     dashboard: <Dashboard approvals={approvals} programs={programs} analytics={analytics} notifications={notifications} opportunities={opportunities} pipelineRuns={pipelineRuns} missionTasks={missionTasks} setMissionTasks={setMissionTasks} savedAt={savedAt} setPage={setPage} />,

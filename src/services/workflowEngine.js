@@ -1,3 +1,4 @@
+import { buildApprovalFromPayload, buildContentFromPayload, buildMissionFromPayload } from "./connectionEngine";
 export const workflowTemplates = [
   {
     id: "trend-to-revenue",
@@ -73,6 +74,16 @@ export function executeWorkflow({
   setApprovals,
   setNotifications,
 }) {
+  const payload = {
+    title: workflow.title,
+    program: workflow.relatedProgram,
+    expectedRevenue: workflow.expectedRevenue,
+    risk: workflow.riskLevel,
+    confidence: workflow.confidence,
+    score: workflow.score,
+    reason: workflow.reason,
+    sourceType: workflow.source || "Workflow",
+  };
   const missionValue = Math.round(Number(workflow.expectedRevenue || 1000) / 3);
 
   const missionTasks = [
@@ -149,9 +160,13 @@ ${workflow.reason}
     risk: workflow.riskLevel,
   };
 
-  setMissionTasks((prev) => [...missionTasks, ...prev]);
-  setDraft(contentDraft);
-  setApprovals((prev) => [approval, ...prev]);
+  const connectedMissions = buildMissionFromPayload(payload);
+  const connectedDraft = buildContentFromPayload(payload);
+  const connectedApproval = buildApprovalFromPayload(payload);
+
+  setMissionTasks((prev) => [...connectedMissions, ...prev]);
+  setDraft(connectedDraft);
+  setApprovals((prev) => [connectedApproval, ...prev]);
   setNotifications?.((prev) => [
     {
       id: Date.now() + 5,

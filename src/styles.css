@@ -518,3 +518,16 @@ nav.sidebar::-webkit-scrollbar-track {
   transform: translateY(-1px);
   box-shadow: 0 10px 24px rgba(38, 85, 62, 0.10);
 }
+
+
+/* KEVIRIO agent governance v3.6 */
+.agent-card small {
+  display: inline-block;
+  margin-top: 10px;
+  font-weight: 900;
+  color: #2D8B57;
+}
+
+.governance-panel {
+  border: 1px solid rgba(45, 139, 87, 0.16);
+}

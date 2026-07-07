@@ -6,6 +6,7 @@ import Dashboard from "./components/Dashboard";
 import AICEO from "./components/AICEO";
 import TrendIntelligence from "./components/TrendIntelligence";
 import WorkflowAutomation from "./components/WorkflowAutomation";
+import APIControlCenter from "./components/APIControlCenter";
 import WorkCommand from "./components/WorkCommand";
 import WorkEngine from "./components/WorkEngine";
 import AffiliateHub from "./components/AffiliateHub";
@@ -81,6 +82,7 @@ export default function App() {
 
   const pages = {
     ceo: <AICEO workItems={workItems} missionTasks={missionTasks} approvals={approvals} analytics={analytics} pipelineRuns={pipelineRuns} setPage={setPage} />,
+    apiCenter: <APIControlCenter setPage={setPage} />,
     trends: <TrendIntelligence trendItems={trendItems} setTrendItems={setTrendItems} setDraft={setDraft} setPage={setPage} />,
     workflows: <WorkflowAutomation workflows={workflows} setWorkflows={setWorkflows} trendItems={trendItems} workItems={workItems} setMissionTasks={setMissionTasks} setDraft={setDraft} setApprovals={setApprovals} setNotifications={setNotifications} setPage={setPage} />,
     dashboard: <Dashboard approvals={approvals} programs={programs} analytics={analytics} notifications={notifications} opportunities={opportunities} pipelineRuns={pipelineRuns} missionTasks={missionTasks} setMissionTasks={setMissionTasks} savedAt={savedAt} setPage={setPage} />,

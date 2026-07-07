@@ -438,3 +438,38 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .workflow-card .actions {
   flex-wrap: wrap;
 }
+
+
+/* KEVIRIO sidebar scroll v3.2 */
+.sidebar,
+aside.sidebar,
+nav.sidebar {
+  max-height: 100vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+.sidebar::-webkit-scrollbar,
+aside.sidebar::-webkit-scrollbar,
+nav.sidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sidebar::-webkit-scrollbar-thumb,
+aside.sidebar::-webkit-scrollbar-thumb,
+nav.sidebar::-webkit-scrollbar-thumb {
+  background: rgba(45, 139, 87, 0.28);
+  border-radius: 999px;
+}
+
+.sidebar::-webkit-scrollbar-track,
+aside.sidebar::-webkit-scrollbar-track,
+nav.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.danger-panel {
+  border-color: rgba(255, 91, 91, 0.25);
+  background: rgba(255, 91, 91, 0.06);
+}

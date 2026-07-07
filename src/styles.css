@@ -531,3 +531,16 @@ nav.sidebar::-webkit-scrollbar-track {
 .governance-panel {
   border: 1px solid rgba(45, 139, 87, 0.16);
 }
+
+
+/* KEVIRIO AI Orchestrator v3.7 */
+.orchestrator-result {
+  margin-top: 18px;
+}
+
+.orchestrator-result small {
+  display: block;
+  margin-top: 8px;
+  font-weight: 900;
+  color: #2D8B57;
+}

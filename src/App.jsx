@@ -32,9 +32,14 @@ import { initialMissionTasks } from "./data/tasks";
 import { initialWorkItems } from "./data/workItems";
 import { initialTrendItems } from "./services/trendEngine";
 import { initialBusinessMemory, initialOpportunities as initialRevenueOpportunities } from "./services/opportunityEngine";
+import BusinessMemory from "./components/BusinessMemory";
+import { initialDecisionJournal, initialMemoryRecords } from "./services/memoryEngine";
+import HomeCommandCenter from "./components/HomeCommandCenter";
+import CampaignOS from "./components/CampaignOS";
+import { initialCampaigns } from "./services/campaignEngine";
 
 export default function App() {
-  const [page, setPage] = useState("dashboard");
+  const [page, setPage] = useState("home");
   const [savedAt, setSavedAt] = useState("未保存");
 
   const [programs, setPrograms] = useLocalStorage("nexora-programs", initialPrograms, setSavedAt);
@@ -54,6 +59,7 @@ export default function App() {
   const [businessMemory, setBusinessMemory] = useLocalStorage("kevirio-business-memory", initialBusinessMemory, setSavedAt);
   const [memoryRecords, setMemoryRecords] = useLocalStorage("kevirio-memory-records", initialMemoryRecords, setSavedAt);
   const [decisionJournal, setDecisionJournal] = useLocalStorage("kevirio-decision-journal", initialDecisionJournal, setSavedAt);
+  const [campaigns, setCampaigns] = useLocalStorage("kevirio-campaigns", initialCampaigns, setSavedAt);
 
   const resetAll = () => {
     const ok = window.confirm("保存データを初期化しますか？");
@@ -84,13 +90,16 @@ export default function App() {
     setWorkflows([]);
     setMemoryRecords(initialMemoryRecords);
     setDecisionJournal(initialDecisionJournal);
+    setCampaigns(initialCampaigns);
     setRevenueOpportunities(initialRevenueOpportunities);
     setBusinessMemory(initialBusinessMemory);
-    setPage("dashboard");
+    setPage("home");
     setSavedAt("初期化済み");
   };
 
   const pages = {
+    home: <HomeCommandCenter approvals={approvals} analytics={analytics} missionTasks={missionTasks} workItems={workItems} pipelineRuns={pipelineRuns} workflows={workflows} memoryRecords={memoryRecords} decisionJournal={decisionJournal} campaigns={campaigns} setPage={setPage} />,
+    campaign: <CampaignOS campaigns={campaigns} setCampaigns={setCampaigns} setDraft={setDraft} setApprovals={setApprovals} setWorkflows={setWorkflows} setDecisionJournal={setDecisionJournal} setMemoryRecords={setMemoryRecords} setPage={setPage} />,
     ceo: <AICEO workItems={workItems} missionTasks={missionTasks} approvals={approvals} analytics={analytics} pipelineRuns={pipelineRuns} setPage={setPage} />,
     apiCenter: <APIControlCenter setPage={setPage} />,
     memory: <BusinessMemory memoryRecords={memoryRecords} setMemoryRecords={setMemoryRecords} decisionJournal={decisionJournal} setDecisionJournal={setDecisionJournal} setPage={setPage} />,

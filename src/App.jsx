@@ -112,7 +112,7 @@ export default function App() {
     affiliate: <AffiliateHub programs={programs} setPrograms={setPrograms} setDraft={setDraft} setPage={setPage} savedAt={savedAt} />,
     content: <ContentStudio draft={draft} setDraft={setDraft} setApprovals={setApprovals} setPage={setPage} savedAt={savedAt} />,
     approval: <ApprovalCenter approvals={approvals} setApprovals={setApprovals} setAnalytics={setAnalytics} savedAt={savedAt} />,
-    analytics: <Analytics analytics={analytics} approvals={approvals} savedAt={savedAt} />,
+    analytics: <Analytics analytics={analytics} approvals={approvals} savedAt={savedAt} setPage={setPage} />,
     assistant: <AIAssistant programs={programs} approvals={approvals} chatMessages={chatMessages} setChatMessages={setChatMessages} setDraft={setDraft} setPage={setPage} savedAt={savedAt} />,
     settings: <Settings resetAll={resetAll} savedAt={savedAt} notifications={notifications} setNotifications={setNotifications} todos={todos} setTodos={setTodos} />,
   };

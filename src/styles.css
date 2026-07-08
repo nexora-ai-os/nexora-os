@@ -652,3 +652,29 @@ nav.sidebar::-webkit-scrollbar-track {
 .api-group .card ul li { line-height: 1.55; }
 .orchestrator-result { margin-top: 18px; }
 .orchestrator-result small { display: block; margin-top: 8px; font-weight: 900; color: #2D8B57; }
+
+
+/* KEVIRIO v5.2 Social Revenue Engine */
+.social-revenue-panel {
+  border: 1px solid rgba(38, 150, 96, 0.18);
+}
+
+.compact-panel .grid,
+.compact-panel .social-subhead {
+  display: none;
+}
+
+.mini-stats {
+  margin: 16px 0;
+}
+
+.social-subhead {
+  margin-top: 24px;
+}
+
+.social-revenue-panel small {
+  display: inline-block;
+  margin-top: 10px;
+  font-weight: 900;
+  color: #2D8B57;
+}

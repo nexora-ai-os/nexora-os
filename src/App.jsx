@@ -40,8 +40,8 @@ import { initialDecisionJournal, initialMemoryRecords } from "./services/memoryE
 import HomeCommandCenter from "./components/HomeCommandCenter";
 import CampaignOS from "./components/CampaignOS";
 import RevenueCampaignFoundation from "./components/RevenueCampaignFoundation";
-import OperatorOverview from "./components/OperatorOverview";
 import OperationCommandCenter from "./components/OperationCommandCenter";
+import RevenueCommandCenter from "./components/RevenueCommandCenter";
 import { initialCampaigns } from "./services/campaignEngine";
 import {
   initialAgents,
@@ -155,7 +155,7 @@ export default function App() {
   };
 
   const pages = useMemo(() => ({
-    home: <OperatorOverview approvals={approvals} approvalsOS={approvalsOS} analytics={analytics} agents={agents} tasks={platformTasks} integrations={integrations} apiStatuses={apiStatuses} departments={departments} modes={modes} revenues={revenues} forecasts={forecasts} risks={risks} trendScores={trendScores} marketInsights={marketInsights} nextActions={nextActions} notifications={platformNotifications} setPage={setPage} />,
+    home: <RevenueCommandCenter approvals={approvals} approvalsOS={approvalsOS} forecasts={forecasts} revenues={revenues} revenueCampaigns={revenueCampaigns} campaigns={campaigns} tasks={platformTasks} budget={budget} setPage={setPage} />,
     campaign: (
       <main className="content">
         <RevenueCampaignFoundation budget={budget} revenueCampaigns={revenueCampaigns} setRevenueCampaigns={setRevenueCampaigns} />

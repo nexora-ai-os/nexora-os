@@ -791,3 +791,364 @@ nav.sidebar::-webkit-scrollbar-track {
   color: #2C6E99;
   font-weight: 900;
 }
+
+
+/* KEVIRIO Phase1-B P0-004 Revenue Command Center */
+.revenue-command-center {
+  display: grid;
+  gap: 20px;
+}
+
+.revenue-command-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.6fr);
+  gap: 20px;
+  align-items: stretch;
+}
+
+.today-focus-card,
+.owner-action-item,
+.pipeline-lane,
+.workforce-summary-card,
+.event-summary-item {
+  border: 1px solid rgba(45, 49, 55, 0.06);
+  background: rgba(255, 255, 255, 0.66);
+  border-radius: 18px;
+}
+
+.today-focus-card {
+  padding: 20px;
+}
+
+.today-focus-card strong {
+  display: block;
+  font-size: 24px;
+  color: #20252B;
+  margin-bottom: 12px;
+}
+
+.today-focus-card ul,
+.workforce-summary-card ul {
+  list-style: none;
+  display: grid;
+  gap: 8px;
+  color: #65717A;
+}
+
+.owner-queue-panel {
+  border-color: rgba(101, 210, 138, 0.24);
+}
+
+.owner-action-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.owner-action-item {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 12px;
+  min-height: 118px;
+  padding: 14px;
+  text-align: left;
+}
+
+.owner-action-item span:nth-child(2) {
+  display: grid;
+  gap: 4px;
+}
+
+.owner-action-priority {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(101, 210, 138, 0.16);
+  color: #2D8B57;
+  font-weight: 950;
+}
+
+.owner-action-item small,
+.owner-action-item em {
+  color: #65717A;
+  font-style: normal;
+  line-height: 1.45;
+}
+
+.owner-action-page {
+  grid-column: 2;
+  color: #2C6E99;
+  font-weight: 900;
+}
+
+.revenue-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.revenue-kpi-card strong {
+  font-size: clamp(22px, 3vw, 32px);
+  letter-spacing: 0;
+}
+
+.pipeline-lanes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.pipeline-lane {
+  padding: 16px;
+}
+
+.pipeline-lane-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.pipeline-lane-head strong {
+  font-size: 30px;
+  color: #20252B;
+}
+
+.pipeline-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.pipeline-step {
+  min-height: 76px;
+  border-radius: 16px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(101, 210, 138, 0.16);
+}
+
+.pipeline-step span {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  margin-bottom: 8px;
+  border-radius: 50%;
+  background: rgba(87, 184, 255, 0.14);
+  color: #2C6E99;
+  font-weight: 900;
+}
+
+.pipeline-step strong {
+  display: block;
+  font-size: 13px;
+  color: #20252B;
+}
+
+.workforce-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.workforce-summary-card {
+  padding: 14px;
+}
+
+.workforce-summary-card strong {
+  display: block;
+  margin: 10px 0 4px;
+  color: #20252B;
+}
+
+.workforce-summary-card p,
+.workforce-summary-card li {
+  color: #65717A;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.event-summary-list {
+  display: grid;
+  gap: 10px;
+}
+
+.event-summary-item {
+  display: grid;
+  grid-template-columns: 48px minmax(170px, 1fr) minmax(160px, 1fr) 76px;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+}
+
+.event-summary-item span {
+  color: #2D8B57;
+  font-weight: 950;
+}
+
+.event-summary-item small,
+.event-summary-item em {
+  color: #65717A;
+  font-style: normal;
+}
+
+.revenue-command-hero.simplified h1 {
+  font-size: clamp(28px, 4vw, 46px);
+}
+
+.revenue-command-hero.simplified .lead {
+  max-width: 760px;
+}
+
+.today-focus-card button,
+.detail-toggle {
+  border: 1px solid rgba(101, 210, 138, 0.22);
+  color: var(--graphite);
+  background: rgba(255, 255, 255, 0.72);
+  border-radius: 999px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 900;
+  min-height: 42px;
+  box-shadow: 0 10px 24px rgba(80, 120, 140, 0.08);
+}
+
+.today-focus-card p {
+  color: #65717A;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.command-collapse-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.revenue-status-panel .revenue-kpi-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.secondary-kpi-list {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.secondary-kpi-list div,
+.pipeline-summary-grid div,
+.ai-summary-strip div {
+  border: 1px solid rgba(45, 49, 55, 0.06);
+  background: rgba(255, 255, 255, 0.66);
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.secondary-kpi-list span,
+.pipeline-summary-grid span,
+.ai-summary-strip span {
+  display: block;
+  color: #65717A;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.secondary-kpi-list strong,
+.pipeline-summary-grid strong,
+.ai-summary-strip strong {
+  display: block;
+  margin-top: 6px;
+  color: #20252B;
+}
+
+.compact-command-panel {
+  margin-bottom: 0;
+}
+
+.pipeline-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.pipeline-summary-grid p {
+  color: #65717A;
+  margin-top: 4px;
+}
+
+.pipeline-detail-flow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.pipeline-detail-flow span {
+  padding: 8px 10px;
+  border-radius: 999px;
+  background: rgba(87, 184, 255, 0.12);
+  color: #2C6E99;
+  font-weight: 900;
+  font-size: 12px;
+}
+
+.ai-summary-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.workforce-summary-grid.compact {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.event-summary-list.compact .event-summary-item {
+  grid-template-columns: 42px minmax(160px, 1fr) minmax(130px, 0.8fr) minmax(180px, 0.8fr);
+}
+
+.command-note {
+  display: block;
+  margin-top: 10px;
+  color: #65717A;
+  font-weight: 900;
+}
+
+@media (max-width: 1180px) {
+  .owner-action-list,
+  .revenue-kpi-grid,
+  .revenue-status-panel .revenue-kpi-grid,
+  .secondary-kpi-list,
+  .workforce-summary-grid.compact {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workforce-summary-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .revenue-command-hero,
+  .owner-action-list,
+  .revenue-kpi-grid,
+  .pipeline-lanes,
+  .pipeline-steps,
+  .pipeline-summary-grid,
+  .ai-summary-strip,
+  .secondary-kpi-list,
+  .workforce-summary-grid,
+  .workforce-summary-grid.compact,
+  .event-summary-item {
+    grid-template-columns: 1fr;
+  }
+
+  .event-summary-list.compact .event-summary-item {
+    grid-template-columns: 1fr;
+  }
+}

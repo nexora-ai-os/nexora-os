@@ -1,5 +1,6 @@
 import { buildCEOBrief } from "../services/ceoEngine";
 import { buildAgentBoardReport, buildGovernanceChecklist } from "../services/agentEngine";
+import AIWorkforceRegistry from "./AIWorkforceRegistry";
 
 export default function AICEO({
   workItems,
@@ -102,6 +103,8 @@ export default function AICEO({
           ))}
         </div>
       </section>
+
+      <AIWorkforceRegistry />
 
       <section className="panel">
         <div className="section-head">

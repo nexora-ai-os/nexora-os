@@ -10,6 +10,7 @@ import {
 import { analyzeTrends } from "../services/trendEngine";
 import { analyzeWorkItems } from "../services/workEngine";
 import { buildAutomationStatus as buildConnectionStatus } from "../services/connectionEngine";
+import { buildCostEstimate, canExecute, createPhase1Context, EXECUTION_MODES } from "../services/safetyEngine";
 
 export default function WorkflowAutomation({
   workflows,
@@ -39,13 +40,68 @@ export default function WorkflowAutomation({
   };
 
   const runWorkflow = (workflow) => {
+    const guard = canExecute(createPhase1Context({
+      executionMode: EXECUTION_MODES.DEVELOPMENT,
+      actionType: "workflow-execute",
+      isExternalRequest: false,
+      ownerApproved: false,
+      approvalValid: false,
+      provider: { id: "local-mock", status: "mock-only" },
+      estimatedTaskCost: 0,
+      estimatedWorkflowCost: 0.001,
+      mockOnly: true,
+      workflowType: workflow?.templateId || workflow?.type || "workflow-execute",
+      workflowId: workflow?.id || null,
+      employeeId: "workflow-automation",
+    }));
+
+    if (!guard.allowed) {
+      setNotifications?.((prev) => [
+        {
+          id: Date.now(),
+          title: "Workflow blocked by Safety Engine",
+          body: `Phase1-A blocked execution: ${guard.reasonCode}`,
+          read: false,
+        },
+        ...(Array.isArray(prev) ? prev : []),
+      ]);
+      return;
+    }
+
     const updated = executeWorkflow({
       workflow,
       setMissionTasks,
       setDraft,
       setApprovals,
       setNotifications,
+      context: {
+        executionMode: EXECUTION_MODES.DEVELOPMENT,
+        actionType: "workflow-execute",
+        isExternalRequest: false,
+        ownerApproved: false,
+        approvalValid: false,
+        provider: { id: "local-mock", status: "mock-only" },
+        estimatedTaskCost: 0,
+        estimatedWorkflowCost: 0.001,
+        mockOnly: true,
+        workflowType: workflow?.templateId || workflow?.type || "workflow-execute",
+        workflowId: workflow?.id || null,
+        employeeId: "workflow-automation",
+      },
     });
+
+    if (updated?.blocked) {
+      setNotifications?.((prev) => [
+        {
+          id: Date.now(),
+          title: "Workflow blocked by Safety Engine",
+          body: `Phase1-A blocked execution: ${updated.reasonCode}`,
+          read: false,
+        },
+        ...(Array.isArray(prev) ? prev : []),
+      ]);
+      return;
+    }
 
     setWorkflows((prev) => (Array.isArray(prev) ? prev.map((item) => (item.id === workflow.id ? updated : item)) : []));
   };
@@ -78,6 +134,7 @@ Confidence:${workflow.confidence}%
   };
 
   const connectionStatus = buildConnectionStatus({ workflows: safeWorkflows, missionTasks: [], approvals: [], draft: null });
+  const workflowCostEstimate = buildCostEstimate({ workflow: "mock-workflow", provider: "mock", amount: 1 });
 
   const stats = {
     total: safeWorkflows.length,
@@ -123,6 +180,22 @@ Confidence:${workflow.confidence}%
         <div className="mission-list">
           <div>次の最善手：{connectionStatus.nextBestAction}</div>
           <div>原則：AIは準備まで。投稿・契約・送信・決済はオーナー承認後。</div>
+        </div>
+      </section>
+
+      <section className="panel">
+        <div className="section-head">
+          <div>
+            <p className="eyebrow">WORKFLOW COST SIMULATOR</p>
+            <h2>実行コストの見積もり</h2>
+          </div>
+          <span className="badge">Mock / Safe</span>
+        </div>
+        <div className="mission-list">
+          <div>対象: {workflowCostEstimate.workflow}</div>
+          <div>推定コスト: {workflowCostEstimate.estimatedCost} USD</div>
+          <div>承認必要: {workflowCostEstimate.requiresApproval ? "はい" : "いいえ"}</div>
+          <div>実行可否: {workflowCostEstimate.safeToRun ? "安全に実行可能" : "Owner承認が必要"}</div>
         </div>
       </section>
 

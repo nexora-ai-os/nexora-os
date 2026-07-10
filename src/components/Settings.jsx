@@ -13,7 +13,7 @@ export default function Settings({ resetAll, savedAt, notifications, setNotifica
           <div>Profile｜健 / NEXORA Owner</div>
           <div>Notifications｜承認待ち・投稿予定・売上通知</div>
           <div>User Management｜v1は疑似ログイン</div>
-          <div>Security｜Basic認証稼働中</div>
+          <div>Security｜Basic認証設定済み・外部接続なし</div>
           <div>Storage｜localStorage保存対応</div>
         </div>
         <div className="actions">

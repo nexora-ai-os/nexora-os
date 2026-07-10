@@ -1,4 +1,5 @@
 import { buildApprovalFromPayload, buildContentFromPayload, buildMissionFromPayload } from "./connectionEngine";
+import { canExecute, createPhase1Context, EXECUTION_MODES } from "./safetyEngine";
 export const workflowTemplates = [
   {
     id: "trend-to-revenue",
@@ -73,7 +74,50 @@ export function executeWorkflow({
   setDraft,
   setApprovals,
   setNotifications,
+  context,
 }) {
+  try {
+    if (!context || typeof context !== "object" || Array.isArray(context)) {
+      return {
+        ok: false,
+        allowed: false,
+        blocked: true,
+        reason: "Workflow execution context is required.",
+        reasonCode: "missing_context",
+      };
+    }
+
+    const guard = canExecute(createPhase1Context({
+      ...context,
+      executionMode: context.executionMode || EXECUTION_MODES.DEVELOPMENT,
+      actionType: "workflow-execute",
+      isExternalRequest: false,
+      mockOnly: true,
+      workflowType: context.workflowType || workflow?.templateId || workflow?.type || "workflow-execute",
+      workflowId: workflow?.id || context.workflowId || null,
+    }));
+
+    if (!guard.allowed) {
+      return {
+        ok: false,
+        allowed: false,
+        blocked: true,
+        reason: guard.reason,
+        reasonCode: guard.reasonCode,
+        approvalRequired: guard.approvalRequired,
+        approvalReason: guard.approvalReason,
+      };
+    }
+  } catch {
+    return {
+      ok: false,
+      allowed: false,
+      blocked: true,
+      reason: "Workflow Safety Guard failed closed.",
+      reasonCode: "guard_error",
+    };
+  }
+
   const payload = {
     title: workflow.title,
     program: workflow.relatedProgram,
@@ -164,9 +208,9 @@ ${workflow.reason}
   const connectedDraft = buildContentFromPayload(payload);
   const connectedApproval = buildApprovalFromPayload(payload);
 
-  setMissionTasks((prev) => [...connectedMissions, ...prev]);
+  setMissionTasks((prev) => [...connectedMissions, ...(Array.isArray(prev) ? prev : [])]);
   setDraft(connectedDraft);
-  setApprovals((prev) => [connectedApproval, ...prev]);
+  setApprovals((prev) => [connectedApproval, ...(Array.isArray(prev) ? prev : [])]);
   setNotifications?.((prev) => [
     {
       id: Date.now() + 5,
@@ -174,14 +218,14 @@ ${workflow.reason}
       body: `${workflow.title}をMission・Content・Approvalへ連携しました。最終決裁待ちです。`,
       read: false,
     },
-    ...prev,
+    ...(Array.isArray(prev) ? prev : []),
   ]);
 
   return {
     ...workflow,
     status: "owner-review",
     ownerDecision: "最終決裁待ち",
-    steps: workflow.steps.map((step) => ({ ...step, status: "done" })),
+    steps: (Array.isArray(workflow.steps) ? workflow.steps : []).map((step) => ({ ...step, status: "done" })),
     executedAt: new Date().toISOString(),
   };
 }

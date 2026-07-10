@@ -65,17 +65,17 @@ export function buildSocialRevenueSummary({
 function buildNextSocialAction({ pendingApprovalPosts, campaignPosts, socialState }) {
   if (pendingApprovalPosts > 0) return "Approvalで承認待ち投稿を確認し、予約投稿準備へ進める";
   if (campaignPosts === 0) return "Campaignで1テーマから日本向け3本・海外向け3本を生成する";
-  if (socialState.commentsToReview > 0 || socialState.dmToReview > 0) return "コメント/DMを確認し、返信案をAIに作らせる";
-  return "投稿結果をAnalyticsとBusiness Memoryへ記録する";
+  if (socialState.commentsToReview > 0 || socialState.dmToReview > 0) return "Mockコメント/DMを確認し、返信案をAIに作らせる";
+  return "投稿結果は未接続です。AnalyticsとBusiness MemoryへMock記録する";
 }
 
 export function buildSocialTasks(summary) {
   return [
     { id: "publish", title: "予約投稿準備", status: summary.pendingApprovalPosts > 0 ? "承認待ち" : "準備待ち", ownerAction: "承認後に予約投稿へ進める", aiAgents: ["Publisher Agent", "Social Agent", "Legal Agent"] },
-    { id: "community", title: "コメント・DM管理", status: summary.commentsToReview + summary.dmToReview > 0 ? "確認必要" : "正常", ownerAction: "返信前に内容確認", aiAgents: ["Community Agent", "Reviewer Agent", "Brand Agent"] },
-    { id: "growth", title: "フォロー・フォロワー分析", status: "分析中", ownerAction: "異常増減のみ確認", aiAgents: ["Growth Agent", "Analytics Agent"] },
-    { id: "algorithm", title: "アルゴリズム管理", status: `Score ${summary.algorithmScore}`, ownerAction: "投稿時間・CTA・ハッシュタグを改善", aiAgents: ["Experiment Agent", "Trend Agent", "Social Agent"] },
-    { id: "revenue", title: "SNS収益化", status: `${summary.estimatedRevenue.toLocaleString()}円見込み`, ownerAction: "ASP導線・広告収益を確認", aiAgents: ["Affiliate Agent", "Ads Agent", "AI CFO"] },
+    { id: "community", title: "コメント・DM管理", status: summary.commentsToReview + summary.dmToReview > 0 ? "Mock確認必要" : "未接続", ownerAction: "返信前に内容確認", aiAgents: ["Community Agent", "Reviewer Agent", "Brand Agent"] },
+    { id: "growth", title: "フォロー・フォロワー分析", status: "Mock分析中", ownerAction: "異常増減のみ確認", aiAgents: ["Growth Agent", "Analytics Agent"] },
+    { id: "algorithm", title: "アルゴリズム管理", status: `Mock Score ${summary.algorithmScore}`, ownerAction: "投稿時間・CTA・ハッシュタグを改善", aiAgents: ["Experiment Agent", "Trend Agent", "Social Agent"] },
+    { id: "revenue", title: "SNS収益化", status: `Mock ${summary.estimatedRevenue.toLocaleString()}円見込み`, ownerAction: "ASP導線・広告収益を確認", aiAgents: ["Affiliate Agent", "Ads Agent", "AI CFO"] },
   ];
 }
 

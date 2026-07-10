@@ -2,8 +2,12 @@ import TopBar from "./TopBar";
 import SocialRevenuePanel from "./SocialRevenuePanel";
 
 export default function Analytics({ analytics, approvals, savedAt, setPage }) {
-  const approved = approvals.filter((a) => a.status === "承認済み").length;
-  const ctr = analytics.clicks ? "4.8%" : "0%";
+  const safeApprovals = Array.isArray(approvals) ? approvals : [];
+  const approved = safeApprovals.filter((a) => a.status === "承認済み").length;
+  const ctr = Number(analytics?.clicks || 0) ? "4.8%" : "0%";
+  const revenue = Number(analytics?.revenue || 0);
+  const projectedRevenue = revenue + approved * 3800;
+  const profit = Math.round(revenue * 0.42);
 
   return (
     <main className="content">
@@ -13,15 +17,24 @@ export default function Analytics({ analytics, approvals, savedAt, setPage }) {
 
       <div className="panel">
         <h1>Analytics</h1>
-        <p className="muted">承認済み投稿をもとに仮数値を連動表示。</p>
+        <p className="muted">Phase1-Aでは実データ未接続です。承認済み投稿をもとにMock数値を連動表示。</p>
       </div>
 
       <div className="stats">
-        <div className="stat-card"><span>クリック</span><strong>{analytics.clicks}</strong><p>承認ごとに加算</p></div>
-        <div className="stat-card"><span>CV</span><strong>{analytics.cv}</strong><p>成果待ち</p></div>
-        <div className="stat-card"><span>CTR</span><strong>{ctr}</strong><p>投稿後に記録</p></div>
-        <div className="stat-card"><span>AI経由売上</span><strong>{analytics.revenue.toLocaleString()}円</strong><p>{approved}件承認済み</p></div>
+        <div className="stat-card"><span>Mockクリック</span><strong>{analytics?.clicks || 0}</strong><p>実データ未接続</p></div>
+        <div className="stat-card"><span>Mock CV</span><strong>{analytics?.cv || 0}</strong><p>成果API未接続</p></div>
+        <div className="stat-card"><span>Mock CTR</span><strong>{ctr}</strong><p>投稿実績未接続</p></div>
+        <div className="stat-card"><span>実績売上</span><strong>{revenue.toLocaleString()}円</strong><p>{approved}件承認済み / Mock反映</p></div>
       </div>
+      <section className="panel">
+        <h2>Revenue Dashboard 基盤</h2>
+        <div className="mission-list">
+          <div>実績売上: {revenue.toLocaleString()}円</div>
+          <div>Mock見込み売上: {projectedRevenue.toLocaleString()}円</div>
+          <div>Mock利益見込み: {profit.toLocaleString()}円</div>
+          <div>Mock案件数: {safeApprovals.length}件 / 承認済み: {approved}件</div>
+        </div>
+      </section>
 
       <section className="panel">
         <h2>ASP別メモ</h2>

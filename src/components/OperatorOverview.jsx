@@ -25,20 +25,20 @@ const OperatorOverview = ({
   const [query, setQuery] = useState("");
   const filteredAgents = useAdaptiveData(agents, query);
   const pendingApprovals = approvals.filter((item) => item.status === "承認待ち").length;
-  const activeAgents = agents.filter((agent) => agent.status === "active").length;
+  const mockAgents = agents.filter((agent) => agent.status === "mock-running").length;
   const openTasks = tasks.filter((task) => task.status !== "done").length;
   const totalRevenue = Number(analytics.revenue || 0);
-  const revenueForecast = forecasts.find((item) => item.label === "売上予測")?.value || 0;
-  const profitForecast = forecasts.find((item) => item.label === "利益予測")?.value || 0;
+  const revenueForecast = forecasts.find((item) => item.label.includes("売上予測"))?.value || 0;
+  const profitForecast = forecasts.find((item) => item.label.includes("利益予測"))?.value || 0;
   const primaryAction = nextActions[0] || { title: "承認待ちを確認", action: "承認" };
-  const connectedCount = integrations.filter((item) => item.status === "connected").length;
+  const configuredCount = integrations.filter((item) => item.status === "mock-only" || item.status === "configured-unverified").length;
 
   const summaryCards = useMemo(() => [
-    { label: "売上", value: `${totalRevenue.toLocaleString()}円`, hint: "今月の実績" },
-    { label: "利益予測", value: `${profitForecast.toLocaleString()}円`, hint: "次週の見込み" },
-    { label: "承認待ち", value: `${pendingApprovals}件`, hint: "人間の判断待ち" },
-    { label: "AI稼働", value: `${activeAgents}人`, hint: "自動準備中" },
-  ], [activeAgents, pendingApprovals, profitForecast, totalRevenue]);
+    { label: "実績売上", value: `${totalRevenue.toLocaleString()}円`, hint: "実績 / 未接続" },
+    { label: "Mock利益予測", value: `${profitForecast.toLocaleString()}円`, hint: "サンプル予測" },
+    { label: "Mock承認待ち", value: `${pendingApprovals}件`, hint: "Mockデータ / 人間の判断待ち" },
+    { label: "AI社員状態", value: `${mockAgents}人`, hint: "Mock稼働 / 外部通信なし" },
+  ], [mockAgents, pendingApprovals, profitForecast, totalRevenue]);
 
   return (
     <MotionBackground className="operator-overview">
@@ -58,13 +58,13 @@ const OperatorOverview = ({
         <div className="overview-hero__meta">
           <div className="overview-orb">
             <span>{Math.round((totalRevenue / Math.max(revenueForecast, 1)) * 100)}%</span>
-            <small>Goal Pulse</small>
+            <small>Mock Goal</small>
           </div>
           <div className="hero-micro-list">
-            <div>承認待ち {pendingApprovals}件</div>
-            <div>稼働AI {activeAgents}人</div>
+            <div>Mock承認待ち {pendingApprovals}件</div>
+            <div>Mock稼働AI {mockAgents}人</div>
             <div>未完了タスク {openTasks}件</div>
-            <div>接続済みAPI {connectedCount}件</div>
+            <div>API設定状況 {configuredCount}件 / 接続確認未実施</div>
           </div>
         </div>
       </GlassPanel>
@@ -100,7 +100,7 @@ const OperatorOverview = ({
         </GlassPanel>
 
         <GlassPanel className="overview-panel">
-          <SectionTitle eyebrow="AI WORKFORCE" title="AI社員の稼働状況" />
+          <SectionTitle eyebrow="AI WORKFORCE" title="AI社員のMock状態" />
           <input className="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="AI社員を検索" />
           <div className="agent-mini-grid">
             {filteredAgents.slice(0, 4).map((agent) => (
@@ -111,7 +111,7 @@ const OperatorOverview = ({
                 </div>
                 <strong>{agent.name}</strong>
                 <p>{agent.specialty}</p>
-                <small>{agent.taskCount}件の担当</small>
+                <small>{agent.taskCount}件のMock担当</small>
               </div>
             ))}
           </div>

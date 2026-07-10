@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { workTemplates } from "../data/templates";
+import { canExecute, createPhase1Context, EXECUTION_MODES } from "../services/safetyEngine";
 
 export default function AIAssistant({
   chatMessages,
@@ -25,61 +26,58 @@ export default function AIAssistant({
   }, []);
 
   const askAI = async (message, selectedMode = mode) => {
-    const cleanMessage = message.trim();
+    const cleanMessage = String(message || "").trim();
     if (!cleanMessage || loading) return;
 
-    const userMessage = {
-      id: Date.now(),
-      role: "user",
-      text: cleanMessage,
-    };
-
-    setChatMessages((prev) => [...prev, userMessage]);
+    setChatMessages((prev) => [...prev, { id: Date.now(), role: "user", text: cleanMessage }]);
     setInput("");
     setLoading(true);
     setMode(selectedMode);
 
     try {
-      const res = await fetch("/api/ai", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: cleanMessage,
-          context: {
-            provider,
-            mode: selectedMode,
-            monthlyGoal: 300000,
-            revenue: analytics.revenue || 0,
-            waitingApprovals,
-            pipelineRuns: pipelineRuns.length,
-            todos: todos.map((todo) => `${todo.done ? "完了" : "未完了"}:${todo.text}`),
-          },
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || "AI request failed.");
-      }
+      const guard = canExecute(createPhase1Context({
+        executionMode: EXECUTION_MODES.DEVELOPMENT,
+        actionType: "ai-chat",
+        isExternalRequest: false,
+        ownerApproved: false,
+        approvalValid: false,
+        provider: { id: provider === "auto" ? "local-mock" : provider, status: "mock-only" },
+        estimatedTaskCost: 0,
+        estimatedWorkflowCost: 0,
+        mockOnly: true,
+      }));
 
       setChatMessages((prev) => [
         ...prev,
         {
           id: Date.now() + 1,
           role: "assistant",
-          text: `【${data.provider || provider}】\\n${data.text}`,
+          text: guard.allowed
+            ? [
+                "Phase1-A Mock Only.",
+                "/api/ai is not called in Development Mode.",
+                "No external request was sent.",
+                `Guard: ${guard.reasonCode}`,
+                `Mode: ${selectedMode}`,
+                `Revenue snapshot: ${Number(analytics?.revenue || 0).toLocaleString()} JPY`,
+                `Waiting approvals: ${waitingApprovals}`,
+                `Pipeline runs: ${pipelineRuns.length}`,
+                `Todos: ${todos.length}`,
+              ].join("\n")
+            : [
+                "Safety Guard blocked this request.",
+                "No external request was sent.",
+                `Reason: ${guard.reasonCode}`,
+              ].join("\n"),
         },
       ]);
-    } catch (error) {
+    } catch {
       setChatMessages((prev) => [
         ...prev,
         {
           id: Date.now() + 1,
           role: "assistant",
-          text:
-            "接続エラーです。\\n\\n事実: AI APIから正常な返答を取得できませんでした。\\n要確認: VercelのEnvironment VariablesにOPENAI_API_KEYまたはGEMINI_API_KEYが設定されているか確認してください。\\n次の行動: Vercel → Project Settings → Environment Variables を確認して、Redeployしてください。\\n\\n詳細: " +
-            error.message,
+          text: "Safety Guard failed closed. No external request was sent.",
         },
       ]);
     } finally {
@@ -96,9 +94,9 @@ export default function AIAssistant({
     <main className="content">
       <section className="hero">
         <p className="eyebrow">KEVIRIO CORE</p>
-        <h1>仕事を終わらせるAI。</h1>
+        <h1>AI相談はPhase1-A Mockで封鎖中</h1>
         <p className="lead">
-          応募文、営業、返信、SNS、提案書、今日の整理まで。KEVIRIO Coreが実務目線で支援します。
+          Development Modeでは外部AI APIへ送信しません。入力内容は画面上のMock応答にだけ使われます。
         </p>
       </section>
 
@@ -108,14 +106,14 @@ export default function AIAssistant({
             <p className="eyebrow">MODEL ROUTER</p>
             <h2>AIモデル</h2>
           </div>
-          <span className="badge">{loading ? "Thinking..." : "Ready"}</span>
+          <span className="badge">{loading ? "Checking..." : "Mock Only"}</span>
         </div>
 
         <div className="toolbar">
           <select className="search small" value={provider} onChange={(e) => setProvider(e.target.value)}>
-            <option value="auto">Auto</option>
-            <option value="openai">OpenAI</option>
-            <option value="gemini">Gemini</option>
+            <option value="auto">Auto Mock</option>
+            <option value="openai">OpenAI Mock</option>
+            <option value="gemini">Gemini Mock</option>
           </select>
           <select className="search small" value={mode} onChange={(e) => setMode(e.target.value)}>
             <option value="general">General</option>
@@ -144,7 +142,7 @@ export default function AIAssistant({
               <p>{template.prompt}</p>
               <div className="actions">
                 <button onClick={() => askAI(template.prompt, template.mode)} disabled={loading}>
-                  実行する
+                  Mock実行
                 </button>
               </div>
             </div>
@@ -166,14 +164,14 @@ export default function AIAssistant({
               {message.text}
             </div>
           ))}
-          {loading && <div className="chat-bubble assistant">KEVIRIOが整理しています...</div>}
+          {loading && <div className="chat-bubble assistant">Safety Guard checking...</div>}
         </div>
 
         <form className="chat-input" onSubmit={handleSubmit}>
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="例：この案件に応募する文章を作って"
+            placeholder="Phase1-Aでは外部送信せずMock応答します"
           />
           <button type="submit" disabled={loading || !input.trim()}>
             送信

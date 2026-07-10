@@ -1,9 +1,9 @@
 export const apiGroups = [
   { id: "ai", name: "AI Core", priority: "最優先", purpose: "AI社員の思考・文章・分析・調査を担う", providers: [
-      { id: "openai", name: "OpenAI", envKeys: ["OPENAI_API_KEY"], status: "connected-base", role: "文章生成・判断・汎用AI", agents: ["AI CEO", "Content Agent", "Reviewer Agent"] },
-      { id: "gemini", name: "Gemini", envKeys: ["GEMINI_API_KEY"], status: "connected-base", role: "長文・要約・バックアップAI", agents: ["Research Agent", "Translator Agent", "Reviewer Agent"] },
-      { id: "anthropic", name: "Claude / Anthropic", envKeys: ["ANTHROPIC_API_KEY"], status: "next", role: "長文レビュー・法務・ブランド・仕様整理", agents: ["AI Legal", "AI Brand", "Reviewer Agent"] },
-      { id: "perplexity", name: "Perplexity", envKeys: ["PERPLEXITY_API_KEY"], status: "next", role: "最新情報・競合・海外調査", agents: ["Research Agent", "Trend Agent", "Opportunity Agent"] },
+      { id: "openai", name: "OpenAI", envKeys: ["OPENAI_API_KEY"], status: "mock-only", role: "文章生成・判断・汎用AI（Phase1-AはMockのみ）", agents: ["AI CEO", "Content Agent", "Reviewer Agent"] },
+      { id: "gemini", name: "Gemini", envKeys: ["GEMINI_API_KEY"], status: "configured-unverified", role: "長文・要約・バックアップAI（未接続）", agents: ["Research Agent", "Translator Agent", "Reviewer Agent"] },
+      { id: "anthropic", name: "Claude / Anthropic", envKeys: ["ANTHROPIC_API_KEY"], status: "planned", role: "長文レビュー・法務・ブランド・仕様整理", agents: ["AI Legal", "AI Brand", "Reviewer Agent"] },
+      { id: "perplexity", name: "Perplexity", envKeys: ["PERPLEXITY_API_KEY"], status: "planned", role: "最新情報・競合・海外調査", agents: ["Research Agent", "Trend Agent", "Opportunity Agent"] },
     ] },
   { id: "google", name: "Google Workspace / Data", priority: "高", purpose: "保存・管理・予定・YouTube・分析の基盤", providers: [
       { id: "google", name: "Google OAuth", envKeys: ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET"], status: "planned", role: "Google系APIの共通認証", agents: ["AI CTO", "Publisher Agent", "Analytics Agent"] },
@@ -12,8 +12,8 @@ export const apiGroups = [
       { id: "youtube", name: "YouTube Data API", envKeys: ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "YOUTUBE_API_KEY"], status: "planned", role: "動画・Shorts・コメント・分析", agents: ["Video Agent", "Social Agent", "Analytics Agent"] },
     ] },
   { id: "creative", name: "Creative / Video", priority: "高", purpose: "画像・動画・広告素材を作る", providers: [
-      { id: "canva", name: "Canva", envKeys: ["CANVA_CLIENT_ID", "CANVA_CLIENT_SECRET"], status: "next", role: "SNS画像・バナー・広告クリエイティブ", agents: ["Creative Agent", "Brand Agent"] },
-      { id: "video", name: "Video API Layer", envKeys: ["VIDEO_API_KEY"], status: "candidate", role: "CapCut代替を含む動画生成・編集APIの抽象レイヤー", agents: ["Video Agent", "Publisher Agent"] },
+      { id: "canva", name: "Canva", envKeys: ["CANVA_CLIENT_ID", "CANVA_CLIENT_SECRET"], status: "planned", role: "SNS画像・バナー・広告クリエイティブ", agents: ["Creative Agent", "Brand Agent"] },
+      { id: "video", name: "Video API Layer", envKeys: ["VIDEO_API_KEY"], status: "planned", role: "CapCut代替を含む動画生成・編集APIの抽象レイヤー", agents: ["Video Agent", "Publisher Agent"] },
     ] },
   { id: "social", name: "SNS / Publishing", priority: "高", purpose: "投稿・予約・コメント・DM・フォロワー・インサイト管理", providers: [
       { id: "meta", name: "Meta / Instagram / Facebook / Threads", envKeys: ["META_APP_ID", "META_APP_SECRET", "META_ACCESS_TOKEN"], status: "planned", role: "Instagram・Facebook・Threads運用", agents: ["Social Agent", "Community Agent", "Publisher Agent"] },
@@ -23,9 +23,9 @@ export const apiGroups = [
       { id: "pinterest", name: "Pinterest", envKeys: ["PINTEREST_APP_ID", "PINTEREST_APP_SECRET"], status: "planned", role: "画像導線・海外集客", agents: ["Creative Agent", "Global Agent"] },
     ] },
   { id: "affiliate", name: "Affiliate / Revenue", priority: "中〜高", purpose: "国内外ASP・広告収益・成果管理", providers: [
-      { id: "a8", name: "A8.net", envKeys: ["A8_ACCOUNT_ID"], status: "manual-first", role: "国内ASP案件管理", agents: ["Affiliate Agent", "AI CFO"] },
+      { id: "a8", name: "A8.net", envKeys: ["A8_ACCOUNT_ID"], status: "planned", role: "国内ASP案件管理", agents: ["Affiliate Agent", "AI CFO"] },
       { id: "amazon", name: "Amazon Associates", envKeys: ["AMAZON_ASSOCIATE_TAG", "AMAZON_ACCESS_KEY"], status: "planned", role: "国内外の商品収益化", agents: ["Affiliate Agent", "Global Agent"] },
-      { id: "impact", name: "Impact / CJ / ShareASale Layer", envKeys: ["IMPACT_API_KEY", "CJ_API_KEY", "SHAREASALE_API_KEY"], status: "candidate", role: "海外ASP横断管理", agents: ["Global Affiliate Agent", "AI CFO"] },
+      { id: "impact", name: "Impact / CJ / ShareASale Layer", envKeys: ["IMPACT_API_KEY", "CJ_API_KEY", "SHAREASALE_API_KEY"], status: "planned", role: "海外ASP横断管理", agents: ["Global Affiliate Agent", "AI CFO"] },
     ] },
 ];
 export const apiMilestones = [
@@ -37,5 +37,5 @@ export const apiMilestones = [
 export function flattenApiProviders() { return apiGroups.flatMap((group) => group.providers.map((provider) => ({ ...provider, groupId: group.id, groupName: group.name, groupPriority: group.priority }))); }
 export function buildClientApiReadiness(providers = []) {
   const total = providers.length; const ready = providers.filter((p) => p.configured).length; const next = providers.filter((p) => p.status === "next").length; const planned = providers.filter((p) => p.status === "planned").length;
-  return { total, ready, next, planned, score: total ? Math.round((ready / total) * 100) : 0, nextBestAction: ready < 4 ? "Claude / Perplexity / Canva / Google OAuthの順に接続準備を進める" : "SNS APIと海外ASP接続へ進む" };
+  return { total, ready, next, planned, score: total ? Math.round((ready / total) * 100) : 0, nextBestAction: "Phase1-AではMock状態のみ確認します。外部接続確認は無効です。" };
 }

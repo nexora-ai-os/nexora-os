@@ -24,8 +24,29 @@ export function GlassPanel({ children, className = "", compact = false }) {
 }
 
 export function StatusBadge({ status }) {
-  const label = status || "ready";
-  const tone = label === "connected" || label === "active" || label === "positive" ? "good" : label === "pending" || label === "ready" ? "soft" : "warning";
+  const raw = status || "planned";
+  const labels = {
+    "mock-only": "Mock専用",
+    mock: "Mock",
+    "configured-unverified": "設定済み・未検証",
+    planned: "予定",
+    disabled: "無効",
+    active: "Mock稼働",
+    ready: "未検証",
+    connected: "設定済み・未検証",
+    pending: "待機中",
+    standby: "待機中",
+    designing: "設計済み",
+    "mock-running": "Mock稼働",
+    positive: "予測",
+    warning: "要確認",
+    soft: "待機中",
+    todo: "未着手",
+    "in-progress": "準備中",
+    done: "完了",
+  };
+  const label = labels[raw] || raw;
+  const tone = raw === "mock-only" || raw === "mock" || raw === "mock-running" ? "soft" : raw === "disabled" || raw === "warning" ? "warning" : "soft";
   return <span className={`status-badge ${tone}`}>{label}</span>;
 }
 

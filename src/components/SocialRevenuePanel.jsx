@@ -11,14 +11,14 @@ export default function SocialRevenuePanel({ campaigns = [], approvals = [], ana
           <p className="eyebrow">SOCIAL REVENUE ENGINE v5.2</p>
           <h2>SNS収益化・投稿管理</h2>
         </div>
-        <span className="badge">Owner Approval Required</span>
+        <span className="badge">Mock / Owner Approval Required</span>
       </div>
 
       <div className="stats mini-stats">
-        <div className="stat-card"><span>Social Ready</span><strong>{summary.socialReadiness}%</strong><p>投稿準備率</p></div>
-        <div className="stat-card"><span>Pending Posts</span><strong>{summary.pendingPosts}本</strong><p>承認/準備対象</p></div>
-        <div className="stat-card"><span>Community</span><strong>{summary.commentsToReview + summary.dmToReview}件</strong><p>コメント/DM</p></div>
-        <div className="stat-card"><span>Est. Revenue</span><strong>{summary.estimatedRevenue.toLocaleString()}円</strong><p>SNS見込み</p></div>
+        <div className="stat-card"><span>Mock準備率</span><strong>{summary.socialReadiness}%</strong><p>SNS API未接続</p></div>
+        <div className="stat-card"><span>Mock投稿案</span><strong>{summary.pendingPosts}本</strong><p>承認/準備対象</p></div>
+        <div className="stat-card"><span>未接続Community</span><strong>{summary.commentsToReview + summary.dmToReview}件</strong><p>コメント/DM実取得なし</p></div>
+        <div className="stat-card"><span>Mock収益見込み</span><strong>{summary.estimatedRevenue.toLocaleString()}円</strong><p>SNS実績未接続</p></div>
       </div>
 
       <div className="mission-list">

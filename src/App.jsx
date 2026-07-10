@@ -1,5 +1,8 @@
 import { useMemo, useState } from "react";
 import "./styles.css";
+import ErrorBoundary from "./components/ErrorBoundary";
+import BudgetGuardModal from "./components/BudgetGuardModal";
+import { canExecute, createBudgetState, createPhase1Context, defaultBudgetConfig, EXECUTION_MODES } from "./services/safetyEngine";
 
 import Sidebar from "./components/Sidebar";
 import Dashboard from "./components/Dashboard";
@@ -60,6 +63,8 @@ import {
 export default function App() {
   const [page, setPage] = useState("home");
   const [savedAt, setSavedAt] = useState("未保存");
+  const [budget] = useState(() => createBudgetState(defaultBudgetConfig));
+  const [showBudgetModal, setShowBudgetModal] = useState(false);
 
   const [programs, setPrograms] = useLocalStorage("nexora-programs", initialPrograms, setSavedAt);
   const [approvals, setApprovals] = useLocalStorage("nexora-approvals", initialApprovals, setSavedAt);
@@ -149,7 +154,7 @@ export default function App() {
     home: <OperatorOverview approvals={approvals} approvalsOS={approvalsOS} analytics={analytics} agents={agents} tasks={platformTasks} integrations={integrations} apiStatuses={apiStatuses} departments={departments} modes={modes} revenues={revenues} forecasts={forecasts} risks={risks} trendScores={trendScores} marketInsights={marketInsights} nextActions={nextActions} notifications={platformNotifications} setPage={setPage} />,
     campaign: <CampaignOS campaigns={campaigns} setCampaigns={setCampaigns} setDraft={setDraft} setApprovals={setApprovals} setWorkflows={setWorkflows} setDecisionJournal={setDecisionJournal} setMemoryRecords={setMemoryRecords} setPage={setPage} />,
     ceo: <AICEO workItems={workItems} missionTasks={missionTasks} approvals={approvals} analytics={analytics} pipelineRuns={pipelineRuns} setPage={setPage} />,
-    apiCenter: <APIControlCenter setPage={setPage} />,
+    apiCenter: <APIControlCenter setPage={setPage} budget={budget} />,
     memory: <BusinessMemory memoryRecords={memoryRecords} setMemoryRecords={setMemoryRecords} decisionJournal={decisionJournal} setDecisionJournal={setDecisionJournal} setPage={setPage} />,
     opportunity: <OpportunityEngine opportunities={revenueOpportunities} setOpportunities={setRevenueOpportunities} businessMemory={businessMemory} setBusinessMemory={setBusinessMemory} analytics={analytics} setWorkflows={setWorkflows} setDraft={setDraft} setPage={setPage} />,
     trends: <TrendIntelligence trendItems={trendItems} setTrendItems={setTrendItems} setDraft={setDraft} setPage={setPage} />,
@@ -170,6 +175,7 @@ export default function App() {
     approvals,
     approvalsOS,
     apiStatuses,
+    budget,
     businessMemory,
     campaigns,
     chatMessages,
@@ -248,8 +254,28 @@ export default function App() {
   return (
     <div className="app-shell">
       <Sidebar page={page} setPage={setPage} />
-      {pages[page]}
+      <ErrorBoundary>
+        {pages[page]}
+      </ErrorBoundary>
       <FloatingAssistant approvals={approvals} setPage={setPage} />
+      <BudgetGuardModal
+        budget={budget}
+        open={showBudgetModal}
+        onApprove={() => {
+          const guard = canExecute(createPhase1Context({
+            executionMode: EXECUTION_MODES.DEVELOPMENT,
+            actionType: "external-api",
+            isExternalRequest: true,
+            ownerApproved: true,
+            approvalValid: true,
+            provider: { id: "external-provider", status: "configured-unverified" },
+            mockOnly: false,
+          }));
+          setShowBudgetModal(false);
+          setSavedAt(`Owner確認候補: Phase1-Aでは外部処理は実行しません (${guard.reasonCode})`);
+        }}
+        onCancel={() => setShowBudgetModal(false)}
+      />
     </div>
   );
 }

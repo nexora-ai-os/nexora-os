@@ -10,12 +10,7 @@ const OperatorOverview = ({
   agents = [],
   tasks = [],
   integrations = [],
-  apiStatuses = [],
-  departments = [],
-  modes = [],
-  revenues = [],
   forecasts = [],
-  risks = [],
   trendScores = [],
   marketInsights = [],
   nextActions = [],
@@ -24,47 +19,48 @@ const OperatorOverview = ({
 }) => {
   const [query, setQuery] = useState("");
   const filteredAgents = useAdaptiveData(agents, query);
-  const pendingApprovals = approvals.filter((item) => item.status === "承認待ち").length;
+  const pendingApprovals = approvals.filter((item) => item.status === "謇ｿ隱榊ｾ・■" || item.status === "承認待ち").length;
   const mockAgents = agents.filter((agent) => agent.status === "mock-running").length;
   const openTasks = tasks.filter((task) => task.status !== "done").length;
-  const totalRevenue = Number(analytics.revenue || 0);
-  const revenueForecast = forecasts.find((item) => item.label.includes("売上予測"))?.value || 0;
-  const profitForecast = forecasts.find((item) => item.label.includes("利益予測"))?.value || 0;
-  const primaryAction = nextActions[0] || { title: "承認待ちを確認", action: "承認" };
+  const mockRevenue = Number(analytics.mockRevenue || analytics.revenue || 0);
+  const actualRevenue = Number(analytics.actualRevenue || 0);
+  const revenueForecast = forecasts.find((item) => String(item.label || "").includes("売上") || String(item.label || "").includes("Revenue"))?.value || 0;
+  const profitForecast = forecasts.find((item) => String(item.label || "").includes("利益"))?.value || 0;
+  const primaryAction = nextActions[0] || { title: "承認待ちを確認", action: "Approval Centerへ進む" };
   const configuredCount = integrations.filter((item) => item.status === "mock-only" || item.status === "configured-unverified").length;
 
   const summaryCards = useMemo(() => [
-    { label: "実績売上", value: `${totalRevenue.toLocaleString()}円`, hint: "実績 / 未接続" },
+    { label: "Sandbox模擬売上", value: `${mockRevenue.toLocaleString()}円`, hint: "Mock由来 / Actual未接続" },
+    { label: "Actual Revenue", value: `${actualRevenue.toLocaleString()}円`, hint: "未接続 / UI操作で増加しない" },
     { label: "Mock利益予測", value: `${profitForecast.toLocaleString()}円`, hint: "サンプル予測" },
-    { label: "Mock承認待ち", value: `${pendingApprovals}件`, hint: "Mockデータ / 人間の判断待ち" },
-    { label: "AI社員状態", value: `${mockAgents}人`, hint: "Mock稼働 / 外部通信なし" },
-  ], [mockAgents, pendingApprovals, profitForecast, totalRevenue]);
+    { label: "Mock承認待ち", value: `${pendingApprovals}件`, hint: "Mockデータ / Owner判断待ち" },
+  ], [actualRevenue, mockRevenue, pendingApprovals, profitForecast]);
 
   return (
     <MotionBackground className="operator-overview">
       <GlassPanel className="overview-hero">
         <div className="overview-hero__copy">
           <p className="eyebrow">AUTONOMOUS BUSINESS OS</p>
-          <h1>AI社員が9割を準備し、オーナーは1割だけ確認します。</h1>
+          <h1>AI社員が準備し、Ownerは判断する</h1>
           <p className="lead">
-            売上・利益・案件・承認・トレンド・リスクを一目で確認し、次に進むべきアクションを導きます。
+            売上・利益・案件・承認・トレンド・リスクを一目で確認し、次に進むべきアクションを導きます。ここで表示する売上はSandbox模擬値です。
           </p>
           <div className="actions">
             <Button onClick={() => setPage("approval")}>承認待ちを確認</Button>
             <Button onClick={() => setPage("campaign")}>次の施策を作る</Button>
-            <Button onClick={() => setPage("analytics")}>売上予測を見る</Button>
+            <Button onClick={() => setPage("analytics")}>Mock / Actualを確認</Button>
           </div>
         </div>
         <div className="overview-hero__meta">
           <div className="overview-orb">
-            <span>{Math.round((totalRevenue / Math.max(revenueForecast, 1)) * 100)}%</span>
+            <span>{Math.round((mockRevenue / Math.max(revenueForecast, 1)) * 100)}%</span>
             <small>Mock Goal</small>
           </div>
           <div className="hero-micro-list">
             <div>Mock承認待ち {pendingApprovals}件</div>
             <div>Mock稼働AI {mockAgents}人</div>
             <div>未完了タスク {openTasks}件</div>
-            <div>API設定状況 {configuredCount}件 / 接続確認未実施</div>
+            <div>API設定候補 {configuredCount}件 / 接続確認未実施</div>
           </div>
         </div>
       </GlassPanel>
@@ -95,7 +91,7 @@ const OperatorOverview = ({
               ))}
             </div>
           ) : (
-            <EmptyState title="承認待ちはありません" message="AIが用意した案はここに集約されます。" />
+            <EmptyState title="承認待ちはありません" message="AIが用意した案件はここに集約されます。" />
           )}
         </GlassPanel>
 
@@ -120,7 +116,7 @@ const OperatorOverview = ({
 
       <div className="overview-grid overview-grid--wide">
         <GlassPanel className="overview-panel">
-          <SectionTitle eyebrow="TREND SIGNAL" title="日本/海外の伸び筋" />
+          <SectionTitle eyebrow="TREND SIGNAL" title="市場シグナル" />
           <div className="score-grid">
             {trendScores.map((score) => (
               <div className="score-card" key={score.label}>

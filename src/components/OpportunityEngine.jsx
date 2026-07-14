@@ -33,7 +33,10 @@ export default function OpportunityEngine({
     memo: "",
   });
 
-  const summary = buildRevenueSummary(opportunities, analytics, businessMemory);
+  const mockRevenue = Number(analytics?.mockRevenue || analytics?.revenue || 0);
+  const actualRevenue = Number(analytics?.actualRevenue || 0);
+  const revenueView = { ...analytics, revenue: mockRevenue, mockRevenue, actualRevenue };
+  const summary = buildRevenueSummary(opportunities, revenueView, businessMemory);
   const ranked = summary.ranked;
   const top = ranked[0];
   const board = buildBoardOpinions(top);
@@ -81,35 +84,34 @@ export default function OpportunityEngine({
 
   const sendToContent = (item) => {
     setDraft({
-      title: `${item.title}｜Revenue Content案`,
+      title: `${item.title} Revenue Content案`,
       channel: "Blog / Instagram / Threads / X",
       asp: item.program || "KEVIRIO",
       value: item.expectedRevenue || 1000,
-      body: `テーマ：${item.title}
-関連案件：${item.program || "未設定"}
-Opportunity Score：${item.score}
-ROI：${item.roiPerHour.toLocaleString()}円/h
-期待売上：${Number(item.expectedRevenue || 0).toLocaleString()}円
-判断：${item.decision}
+      body: `テーマ: ${item.title}
+関連案件: ${item.program || "未設定"}
+Opportunity Score: ${item.score}
+ROI: ${item.roiPerHour.toLocaleString()}円/h
+Forecast Revenue: ${Number(item.expectedRevenue || 0).toLocaleString()}円
+判断: ${item.decision}
 
-【事実】
-無料/手動データと既存データからOpportunity Engineが評価しました。
+事実:
+手動データ、サンプル、既存データからOpportunity Engineが評価しました。
 
-【推測】
+推測:
 ${item.reason}
 
-【意見】
+意見:
 まずは小さく投稿・記事化し、結果をBusiness Memoryへ記録してください。
 
-【やらないこと】
+やらないこと:
 ${item.notDo}
 
-【要確認】
-公開前にApproval Centerで法務・ブランド・ASP規約を確認してください。
+要確認:
+公開前にApproval Centerで法務、ブランド、ASP規約を確認してください。
 
-【最終決裁】
-投稿・公開・契約・送信はオーナー承認後に行うこと。
-`,
+最終決裁:
+投稿、公開、契約、送信はOwner承認後に行います。`,
     });
     setPage("content");
   };
@@ -132,17 +134,18 @@ ${item.notDo}
     const lines = ranked
       .slice(0, 5)
       .map((item, index) => `${index + 1}. ${item.title} / Score:${item.score} / ROI:${item.roiPerHour}円/h / 判断:${item.decision} / 理由:${item.reason}`)
-      .join("\\n");
+      .join("\n");
 
     const message = `Opportunity Engineの結果をもとに、今日の収益化判断をしてください。
 
 候補:
 ${lines}
 
-月間目標:${summary.monthlyGoal}円
-現在売上:${summary.currentRevenue}円
+月間Mock目標:${summary.monthlyGoal}円
+Sandbox模擬売上:${summary.currentRevenue}円
+Actual Revenue:未接続
 残り:${summary.remaining}円
-今日の期待売上:${summary.expectedTodayRevenue}円
+今日のForecast Revenue:${summary.expectedTodayRevenue}円
 
 必ず「事実」「推測」「意見」「やること」「やらないこと」「要確認」「最終決裁待ち」に分けてください。`;
 
@@ -154,9 +157,9 @@ ${lines}
     <main className="content">
       <section className="hero">
         <p className="eyebrow">OPPORTUNITY ENGINE v3.3</p>
-        <h1>収益機会を見つけ、やるべき案件を決める。</h1>
+        <h1>収益機会を見つけ、やる案件を決める</h1>
         <p className="lead">
-          Trend・Revenue・Competition・Authority・Compliance・Evergreen・ROIを総合評価し、収益化の優先順位を提案します。Connection CoreでMission・Content・Approvalへ接続できます。
+          Trend、Revenue Score、Competition、Authority、Compliance、Evergreen、ROIを総合評価し、収益化の優先順位を提案します。
         </p>
         <div className="actions">
           <button onClick={askAI}>AIに収益判断を依頼</button>
@@ -165,9 +168,9 @@ ${lines}
       </section>
 
       <div className="stats">
-        <div className="stat-card"><span>今日の期待売上</span><strong>{summary.expectedTodayRevenue.toLocaleString()}円</strong><p>上位3件合計</p></div>
+        <div className="stat-card"><span>Forecast Revenue</span><strong>{summary.expectedTodayRevenue.toLocaleString()}円</strong><p>上位3件の予測合計</p></div>
         <div className="stat-card"><span>平均ROI</span><strong>{summary.avgRoi.toLocaleString()}円/h</strong><p>上位3件</p></div>
-        <div className="stat-card"><span>月目標まで</span><strong>{summary.remaining.toLocaleString()}円</strong><p>Revenue OS</p></div>
+        <div className="stat-card"><span>Mock目標まで</span><strong>{summary.remaining.toLocaleString()}円</strong><p>Actual Revenueは未接続</p></div>
         <div className="stat-card"><span>Memory</span><strong>{summary.memoryCount}件</strong><p>学習ログ</p></div>
       </div>
 
@@ -175,10 +178,11 @@ ${lines}
         <p className="eyebrow">AI CEO BRIEF</p>
         <h2>今日の収益判断</h2>
         <div className="mission-list">
-          <div>事実｜現在売上 {summary.currentRevenue.toLocaleString()}円 / 月間目標 {summary.monthlyGoal.toLocaleString()}円</div>
-          <div>推測｜今日の期待売上は {summary.expectedTodayRevenue.toLocaleString()}円です。</div>
-          <div>意見｜{summary.ceoMessage}</div>
-          <div>要確認｜公開・送信・契約はオーナー承認後に行うこと。</div>
+          <div>事実: Sandbox模擬売上 {summary.currentRevenue.toLocaleString()}円 / 月間Mock目標 {summary.monthlyGoal.toLocaleString()}円</div>
+          <div>Actual Revenueは未接続です。Mock値とForecast値は実売上ではありません。</div>
+          <div>Forecast: 今日の売上予測は {summary.expectedTodayRevenue.toLocaleString()}円です。</div>
+          <div>意見: {summary.ceoMessage}</div>
+          <div>要確認: 公開、送信、契約はOwner承認後に行います。</div>
         </div>
       </section>
 
@@ -214,10 +218,10 @@ ${lines}
           <div className="toolbar">
             <input className="search small" placeholder="関連案件" value={draft.program} onChange={(e) => setOpportunityDraft({ ...draft, program: e.target.value })} />
             <input className="search small" placeholder="取得元" value={draft.source} onChange={(e) => setOpportunityDraft({ ...draft, source: e.target.value })} />
-            <input className="search small" type="number" value={draft.expectedRevenue} onChange={(e) => setOpportunityDraft({ ...draft, expectedRevenue: e.target.value })} placeholder="期待売上" />
+            <input className="search small" type="number" value={draft.expectedRevenue} onChange={(e) => setOpportunityDraft({ ...draft, expectedRevenue: e.target.value })} placeholder="Forecast Revenue" />
             <input className="search small" type="number" step="0.25" value={draft.expectedHours} onChange={(e) => setOpportunityDraft({ ...draft, expectedHours: e.target.value })} placeholder="時間" />
             <input className="search small" type="number" value={draft.trend} onChange={(e) => setOpportunityDraft({ ...draft, trend: e.target.value })} placeholder="Trend" />
-            <input className="search small" type="number" value={draft.revenue} onChange={(e) => setOpportunityDraft({ ...draft, revenue: e.target.value })} placeholder="Revenue" />
+            <input className="search small" type="number" value={draft.revenue} onChange={(e) => setOpportunityDraft({ ...draft, revenue: e.target.value })} placeholder="Revenue Score" />
             <input className="search small" type="number" value={draft.competition} onChange={(e) => setOpportunityDraft({ ...draft, competition: e.target.value })} placeholder="Competition" />
             <input className="search small" type="number" value={draft.authority} onChange={(e) => setOpportunityDraft({ ...draft, authority: e.target.value })} placeholder="Authority" />
             <input className="search small" type="number" value={draft.compliance} onChange={(e) => setOpportunityDraft({ ...draft, compliance: e.target.value })} placeholder="Compliance" />
@@ -245,12 +249,12 @@ ${lines}
               <h2>{item.title}</h2>
               <p>{item.memo}</p>
               <ul>
-                <li>関連案件：{item.program || "未設定"}</li>
-                <li>期待売上：{Number(item.expectedRevenue || 0).toLocaleString()}円</li>
-                <li>ROI：{item.roiPerHour.toLocaleString()}円/h</li>
-                <li>理由：{item.reason}</li>
-                <li>やらないこと：{item.notDo}</li>
-                <li>Risk：{item.risk}</li>
+                <li>関連案件: {item.program || "未設定"}</li>
+                <li>Forecast Revenue: {Number(item.expectedRevenue || 0).toLocaleString()}円</li>
+                <li>ROI: {item.roiPerHour.toLocaleString()}円/h</li>
+                <li>理由: {item.reason}</li>
+                <li>やらないこと: {item.notDo}</li>
+                <li>Risk: {item.risk}</li>
               </ul>
               <div className="actions">
                 <button onClick={() => sendToWorkflow(item)}>Workflowへ送る</button>
@@ -272,7 +276,7 @@ ${lines}
         <div className="mission-list">
           {businessMemory.map((memory) => (
             <div key={memory.id}>
-              {memory.title}｜{memory.result}｜Impact {memory.scoreImpact}
+              {memory.title}: {memory.result} / Impact {memory.scoreImpact}
             </div>
           ))}
         </div>

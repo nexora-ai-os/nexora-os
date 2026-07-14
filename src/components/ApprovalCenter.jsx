@@ -1,8 +1,39 @@
 import TopBar from "./TopBar";
 
+const WAITING_STATUSES = ["承認待ち", "謇ｿ隱榊ｾ・■"];
+const APPROVED_STATUSES = ["承認済み", "謇ｿ隱肴ｸ医∩"];
+const APPROVED_STATUS = "承認済み";
+const REVISION_STATUS = "修正待ち";
+const HOLD_STATUS = "保留";
+
+function isWaiting(status) {
+  return WAITING_STATUSES.includes(status);
+}
+
+function isApproved(status) {
+  return APPROVED_STATUSES.includes(status);
+}
+
+function formatYen(value) {
+  return `${Number(value || 0).toLocaleString()}円`;
+}
+
+function toMockAnalytics(prev, addClicks, addCv, addRevenue) {
+  return {
+    ...prev,
+    clicks: Number(prev?.clicks || 0) + addClicks,
+    cv: Number(prev?.cv || 0) + addCv,
+    mockClicks: Number(prev?.mockClicks || prev?.clicks || 0) + addClicks,
+    mockCv: Number(prev?.mockCv || prev?.cv || 0) + addCv,
+    mockRevenue: Number(prev?.mockRevenue || prev?.revenue || 0) + addRevenue,
+    forecastRevenue: Number(prev?.forecastRevenue || 0),
+    actualRevenue: Number(prev?.actualRevenue || 0),
+  };
+}
+
 export default function ApprovalCenter({ approvals, setApprovals, setAnalytics, savedAt }) {
   const safeApprovals = Array.isArray(approvals) ? approvals : [];
-  const waiting = safeApprovals.filter((a) => a.status === "承認待ち").length;
+  const waiting = safeApprovals.filter((a) => isWaiting(a.status)).length;
   const highCost = safeApprovals.filter((a) => Number(a.value || 0) > 500000).length;
 
   const updateStatus = (id, status) => {
@@ -11,47 +42,57 @@ export default function ApprovalCenter({ approvals, setApprovals, setAnalytics, 
     setApprovals((prev) =>
       (Array.isArray(prev) ? prev : []).map((a) => {
         if (a.id !== id) return a;
-        if (status === "承認済み") return { ...a, status, counted: true };
+        if (status === APPROVED_STATUS) return { ...a, status, counted: true };
         return { ...a, status };
       })
     );
 
-    if (status === "承認済み" && target && !target.counted) {
-      setAnalytics((prev) => ({
-        clicks: Number(prev?.clicks || 0) + 38,
-        cv: Number(prev?.cv || 0) + 1,
-        revenue: Number(prev?.revenue || 0) + Number(target.value || 0),
-      }));
+    if (status === APPROVED_STATUS && target && !target.counted && !isApproved(target.status)) {
+      setAnalytics((prev) => toMockAnalytics(prev, 38, 1, Number(target.value || 0)));
     }
   };
 
   const approveAll = () => {
-    const targets = safeApprovals.filter((a) => a.status === "承認待ち" && !a.counted);
+    const targets = safeApprovals.filter((a) => isWaiting(a.status) && !a.counted);
     if (!targets.length) return;
 
-    setApprovals((prev) => (Array.isArray(prev) ? prev : []).map((a) => a.status === "承認待ち" ? { ...a, status: "承認済み", counted: true } : a));
-    setAnalytics((prev) => ({
-      clicks: Number(prev?.clicks || 0) + targets.length * 38,
-      cv: Number(prev?.cv || 0) + targets.length,
-      revenue: Number(prev?.revenue || 0) + targets.reduce((sum, a) => sum + Number(a.value || 0), 0),
-    }));
+    setApprovals((prev) =>
+      (Array.isArray(prev) ? prev : []).map((a) =>
+        isWaiting(a.status) ? { ...a, status: APPROVED_STATUS, counted: true } : a
+      )
+    );
+    setAnalytics((prev) =>
+      toMockAnalytics(
+        prev,
+        targets.length * 38,
+        targets.length,
+        targets.reduce((sum, a) => sum + Number(a.value || 0), 0)
+      )
+    );
   };
 
   return (
     <main className="content">
-      <section className="panel"><p className="eyebrow">CONNECTION CORE</p><h2>承認後の次アクション</h2><div className="mission-list"><div>承認した案件はAnalyticsで売上・ROI確認へ進めてください。</div><div>公開・投稿・送信はオーナー最終決裁後に実行してください。</div></div></section>
+      <section className="panel">
+        <p className="eyebrow">CONNECTION CORE</p>
+        <h2>承認後の次アクション</h2>
+        <div className="mission-list">
+          <div>承認した案件はAnalyticsへMock指標として反映します。</div>
+          <div>外部投稿・送信・決済はOwnerの最終判断後も自動実行しません。</div>
+        </div>
+      </section>
       <TopBar notifications={waiting} savedAt={savedAt} />
 
       <div className="panel">
         <h1>Approval Center</h1>
-        <p className="muted">承認するとAnalyticsとDashboardへ反映されます。高額案件はOwner承認を必須にします。</p>
+        <p className="muted">承認操作はMock Revenueだけを更新します。Actual Revenueは未接続のまま変更しません。</p>
         <div className="actions">
-          <button onClick={approveAll}>✅ 承認待ちを一括承認</button>
+          <button onClick={approveAll}>承認待ちを一括承認</button>
         </div>
         <div className="mission-list">
           <div>承認待ち: {waiting}件</div>
-          <div>高コスト承認対象: {highCost}件</div>
-          <div>外部送信・投稿・決済は承認後のみ。</div>
+          <div>高コスト確認対象: {highCost}件</div>
+          <div>外部通信・Production・Actual Revenue記録は無効です。</div>
         </div>
       </div>
 
@@ -61,13 +102,13 @@ export default function ApprovalCenter({ approvals, setApprovals, setAnalytics, 
             <span className="badge">{a.status}</span>
             <h2>{a.title}</h2>
             <p>{a.channel}</p>
-            <p>案件：{a.asp}</p>
-            <p>投稿予定：{a.time}</p>
-            <p>予測価値：{a.value.toLocaleString()}円</p>
+            <p>案件: {a.asp}</p>
+            <p>投稿予定: {a.time}</p>
+            <p>Mock見込み: {formatYen(a.value)}</p>
             <div className="actions">
-              <button onClick={() => updateStatus(a.id, "承認済み")}>✅ 承認</button>
-              <button onClick={() => updateStatus(a.id, "修正待ち")}>🟡 修正</button>
-              <button onClick={() => updateStatus(a.id, "保留")}>⏸ 保留</button>
+              <button onClick={() => updateStatus(a.id, APPROVED_STATUS)}>承認</button>
+              <button onClick={() => updateStatus(a.id, REVISION_STATUS)}>修正</button>
+              <button onClick={() => updateStatus(a.id, HOLD_STATUS)}>保留</button>
             </div>
           </div>
         ))}

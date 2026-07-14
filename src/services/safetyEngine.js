@@ -56,6 +56,7 @@ const PHASE1_MOCK_ACTIONS = new Set([
   "mock-campaign-create",
   "revenue.package.mock.generate",
   "content.revision.mock.generate",
+  "publish.sandbox.mock.prepare",
 ]);
 
 const OWNER_REQUIRED_ACTIONS = new Set([

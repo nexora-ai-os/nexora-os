@@ -17,19 +17,14 @@ const defaultStatus = {
 };
 
 function normalizeProvider(provider = {}, fallback = {}) {
-  const configured = typeof provider.configured === "boolean"
-    ? provider.configured
-    : Boolean(provider.status === "mock-only" || provider.status === "configured-unverified");
-
   return {
     ...fallback,
     ...provider,
     id: provider.id || fallback.id || "provider",
     name: provider.name || fallback.name || "Provider",
     role: provider.role || fallback.role || "準備中",
-    configured,
+    credentialPolicy: provider.credentialPolicy || fallback.credentialPolicy || "server-only",
     model: provider.model || provider.status || fallback.model || "planned",
-    envKeys: Array.isArray(provider.envKeys) ? provider.envKeys : Array.isArray(fallback.envKeys) ? fallback.envKeys : [],
     secretVisible: false,
   };
 }
@@ -37,7 +32,7 @@ function normalizeProvider(provider = {}, fallback = {}) {
 function displayStatus(status) {
   const labels = {
     "mock-only": "Mock専用",
-    "configured-unverified": "設定済み・未検証",
+    "configured-unverified": "未検証",
     planned: "予定",
     disabled: "無効",
     mock: "Mock",
@@ -65,19 +60,14 @@ function normalizeStatus(rawStatus = {}) {
     ? status.providers.map((provider) => normalizeProvider(provider, provider))
     : groups.flatMap((group) => group.providers.map((provider) => normalizeProvider(provider, provider)));
 
-  const readyCount = typeof status.readyCount === "number"
-    ? status.readyCount
-    : providers.filter((provider) => provider.configured).length;
   const totalProviders = typeof status.totalProviders === "number" ? status.totalProviders : providers.length;
-  const automationReady = typeof status.automationReady === "boolean"
-    ? status.automationReady
-    : providers.some((provider) => provider.id === "openai" && provider.configured) && providers.some((provider) => provider.id === "gemini" && provider.configured);
+  const automationReady = false;
 
   return {
     ...defaultStatus,
     ...status,
     automationReady,
-    readyCount,
+    readyCount: 0,
     totalProviders,
     providers,
     groups,
@@ -152,7 +142,7 @@ export default function APIControlCenter({ setPage, budget = {} }) {
         <div className="actions"><button onClick={loadStatus}>{loading ? "確認中..." : "再確認"}</button><button onClick={() => setPage("home")}>Homeへ</button><button onClick={() => setPage("campaign")}>Campaignへ</button></div>
       </section>
       <div className="stats">
-        <div className="stat-card"><span>API設定状況</span><strong>{normalizedStatus.readyCount}件</strong><p>{normalizedStatus.totalProviders}件中 接続確認未実施</p></div>
+        <div className="stat-card"><span>API接続準備</span><strong>{normalizedStatus.totalProviders}件</strong><p>Credential値・名前は非表示</p></div>
         <div className="stat-card"><span>接続準備率</span><strong>{readiness.score}%</strong><p>Mock表示 / 外部通信なし</p></div>
         <div className="stat-card"><span>AI社員</span><strong>{agentSummary.uniqueAgents}人</strong><p>{agentSummary.departments}部門 / Mock設計</p></div>
         <div className="stat-card"><span>Automation状態</span><strong>{normalizedStatus.automationReady ? "Mock専用" : "未検証"}</strong><p>Owner Final</p></div>
@@ -169,7 +159,7 @@ export default function APIControlCenter({ setPage, budget = {} }) {
       </section>
       {error && <section className="panel danger-panel"><p className="eyebrow">ERROR</p><h2>API状態を取得できませんでした</h2><p>{error}</p></section>}
       <section className="panel"><div className="section-head"><div><p className="eyebrow">NEXT BEST ACTION</p><h2>次に接続すべきAPI</h2></div><span className="badge">Phase Based</span></div><div className="mission-list"><div>{normalizedStatus.nextBestAction || readiness.nextBestAction}</div><div>原則：APIは増やすが、ユーザーの操作は増やさない。</div><div>最優先：Claude / Perplexity / Google OAuth / Canva / SNS API準備。</div></div></section>
-      <section className="panel"><div className="section-head"><div><p className="eyebrow">PROVIDER GROUPS</p><h2>API接続マップ</h2></div><span className="badge">Secrets Hidden / Mock Only</span></div>{groups.map((group) => <div className="api-group" key={group.id}><div className="section-head compact"><div><p className="eyebrow">{group.id}</p><h2>{group.name}</h2></div></div><div className="grid">{group.providers.map((provider) => <div className="card" key={provider.id}><div className="card-header"><span className="badge">{provider.configured ? "設定済み・未検証" : "未検証"}</span><span className="badge">{displayStatus(provider.model || provider.status)}</span></div><h2>{provider.name}</h2><p>{provider.role}</p><ul><li>Status：{displayStatus(provider.status || provider.model)}</li><li>Secret：非表示</li><li>Keys：{provider.envKeys?.join(" / ") || "要確認"}</li></ul></div>)}</div></div>)}</section>
+      <section className="panel"><div className="section-head"><div><p className="eyebrow">PROVIDER GROUPS</p><h2>API接続マップ</h2></div><span className="badge">Secrets Hidden / Mock Only</span></div>{groups.map((group) => <div className="api-group" key={group.id}><div className="section-head compact"><div><p className="eyebrow">{group.id}</p><h2>{group.name}</h2></div></div><div className="grid">{group.providers.map((provider) => <div className="card" key={provider.id}><div className="card-header"><span className="badge">実接続未検証</span><span className="badge">{displayStatus(provider.model || provider.status)}</span></div><h2>{provider.name}</h2><p>{provider.role}</p><ul><li>Status：{displayStatus(provider.status || provider.model)}</li><li>Credential：server-only / 値と名前は非表示</li><li>Production Gateway：Locked</li></ul></div>)}</div></div>)}</section>
       <section className="panel"><div className="section-head"><div><p className="eyebrow">AI ORCHESTRATOR</p><h2>用途別AIルーティング</h2></div><span className="badge">{orchestratorLoading ? "確認中" : "Mock Only"}</span></div><div className="grid">{aiOrchestratorModes.map((mode) => <div className="card" key={mode.id}><span className="badge">{mode.provider}</span><h2>{mode.name}</h2><p>{mode.role}</p><div className="actions"><button onClick={() => testOrchestrator(mode.id)} disabled={orchestratorLoading}>{orchestratorLoading ? "確認中..." : "Mock状態を確認"}</button></div></div>)}</div>{orchestratorResult && <div className="ai-report orchestrator-result"><strong>Orchestrator Result：{orchestratorResult.ok ? `${orchestratorResult.provider} / ${orchestratorResult.model}` : "Blocked"}</strong><p>{orchestratorResult.ok ? orchestratorResult.text : orchestratorResult.reason || orchestratorResult.error || "No external request was sent"}</p>{orchestratorResult.fallbackUsed && <small>Fallback used: yes</small>}</div>}</section>
       <section className="panel"><div className="section-head"><div><p className="eyebrow">AI COMPANY</p><h2>AI社員・部署構成</h2></div><span className="badge">{agentSummary.uniqueAgents} Agents</span></div><div className="grid">{aiDepartments.map((department) => <div className="card" key={department.id}><span className="badge">{department.name}</span><h2>{department.mission}</h2><p>{department.agents.join(" / ")}</p></div>)}</div></section>
       <section className="panel"><div className="section-head"><div><p className="eyebrow">ACTION MAP</p><h2>見える画面は少なく、裏側は強く</h2></div></div><div className="mission-list">{actionMap.map((item) => <div key={item.action}>{item.action}｜{item.visiblePage}｜{item.agents.join(" / ")}</div>)}</div></section>

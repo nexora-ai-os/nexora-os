@@ -1,6 +1,7 @@
 import TopBar from "./TopBar";
+import ProductionReadiness from "./ProductionReadiness";
 
-export default function Settings({ resetAll, savedAt, notifications, setNotifications, todos, setTodos }) {
+export default function Settings({ resetAll, savedAt, notifications, setNotifications, todos, setTodos, budget }) {
   const markAllRead = () => setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
   const toggleTodo = (id) => setTodos((prev) => prev.map((t) => t.id === id ? { ...t, done: !t.done } : t));
 
@@ -21,6 +22,8 @@ export default function Settings({ resetAll, savedAt, notifications, setNotifica
           <button onClick={resetAll}>🧹 データ初期化</button>
         </div>
       </div>
+
+      <ProductionReadiness budget={budget} />
 
       <div className="panel">
         <h2>Today ToDo</h2>

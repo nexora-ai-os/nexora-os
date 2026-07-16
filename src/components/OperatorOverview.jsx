@@ -27,7 +27,7 @@ const OperatorOverview = ({
   const revenueForecast = forecasts.find((item) => String(item.label || "").includes("売上") || String(item.label || "").includes("Revenue"))?.value || 0;
   const profitForecast = forecasts.find((item) => String(item.label || "").includes("利益"))?.value || 0;
   const primaryAction = nextActions[0] || { title: "承認待ちを確認", action: "Approval Centerへ進む" };
-  const configuredCount = integrations.filter((item) => item.status === "mock-only" || item.status === "configured-unverified").length;
+  const integrationCandidateCount = integrations.length;
 
   const summaryCards = useMemo(() => [
     { label: "Sandbox模擬売上", value: `${mockRevenue.toLocaleString()}円`, hint: "Mock由来 / Actual未接続" },
@@ -60,7 +60,7 @@ const OperatorOverview = ({
             <div>Mock承認待ち {pendingApprovals}件</div>
             <div>Mock稼働AI {mockAgents}人</div>
             <div>未完了タスク {openTasks}件</div>
-            <div>API設定候補 {configuredCount}件 / 接続確認未実施</div>
+            <div>API接続候補 {integrationCandidateCount}件 / 実接続未検証</div>
           </div>
         </div>
       </GlassPanel>

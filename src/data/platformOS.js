@@ -94,7 +94,7 @@ export const initialIntegrations = [
   { id: "openai", name: "OpenAI API", status: "mock-only", category: "AI", description: "Phase1-Aでは実通信禁止" },
   { id: "claude", name: "Claude API", status: "planned", category: "AI", description: "長文レビュー・品質保証" },
   { id: "perplexity", name: "Perplexity API", status: "planned", category: "Research", description: "最新情報・競合調査" },
-  { id: "google", name: "Google Workspace", status: "configured-unverified", category: "Workspace", description: "Drive / Sheets / Gmail / Calendar" },
+  { id: "google", name: "Google Workspace", status: "planned", category: "Workspace", description: "Drive / Sheets / Gmail / Calendar" },
   { id: "canva", name: "Canva API", status: "planned", category: "Design", description: "素材・バナー作成" },
   { id: "sns", name: "SNS API", status: "disabled", category: "Social", description: "投稿・コメント・DM準備" },
   { id: "asp", name: "ASP API", status: "planned", category: "Revenue", description: "案件・成果分析" },
@@ -126,7 +126,7 @@ export const initialApiStatuses = [
   { id: "api-1", name: "OpenAI", status: "mock-only", usage: "実通信禁止" },
   { id: "api-2", name: "Claude", status: "planned", usage: "未接続" },
   { id: "api-3", name: "Perplexity", status: "planned", usage: "未接続" },
-  { id: "api-4", name: "Google", status: "configured-unverified", usage: "未検証" },
+  { id: "api-4", name: "Google", status: "planned", usage: "未検証" },
 ];
 
 export const initialDepartments = [

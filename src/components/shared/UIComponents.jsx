@@ -28,12 +28,12 @@ export function StatusBadge({ status }) {
   const labels = {
     "mock-only": "Mock専用",
     mock: "Mock",
-    "configured-unverified": "設定済み・未検証",
+    "configured-unverified": "未検証",
     planned: "予定",
     disabled: "無効",
     active: "Mock稼働",
     ready: "未検証",
-    connected: "設定済み・未検証",
+    connected: "未検証",
     pending: "待機中",
     standby: "待機中",
     designing: "設計済み",
@@ -45,7 +45,7 @@ export function StatusBadge({ status }) {
     "in-progress": "準備中",
     done: "完了",
   };
-  const label = labels[raw] || raw;
+  const label = labels[raw] || "未検証";
   const tone = raw === "mock-only" || raw === "mock" || raw === "mock-running" ? "soft" : raw === "disabled" || raw === "warning" ? "warning" : "soft";
   return <span className={`status-badge ${tone}`}>{label}</span>;
 }

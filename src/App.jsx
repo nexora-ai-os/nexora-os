@@ -179,7 +179,7 @@ export default function App() {
     analytics: <Analytics analytics={analytics} approvals={approvals} savedAt={savedAt} setPage={setPage} />,
     operations: <OperationCommandCenter tasks={platformTasks} integrations={integrations} workflows={workflows} setPage={setPage} />,
     assistant: <AIAssistant programs={programs} approvals={approvals} chatMessages={chatMessages} setChatMessages={setChatMessages} setDraft={setDraft} setPage={setPage} savedAt={savedAt} />,
-    settings: <Settings resetAll={resetAll} savedAt={savedAt} notifications={notifications} setNotifications={setNotifications} todos={todos} setTodos={setTodos} />,
+    settings: <Settings resetAll={resetAll} savedAt={savedAt} notifications={notifications} setNotifications={setNotifications} todos={todos} setTodos={setTodos} budget={budget} />,
   }), [
     agents,
     analytics,

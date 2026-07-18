@@ -15,6 +15,7 @@ import {
   runOwnerReviewWorkflow,
 } from "../services/publishImprovementOrchestrator";
 import { loadCrossLaneRevenue, orchestrateThreeRevenueLanes } from "../services/crossLaneRevenueOrchestrator";
+import { buildOpenAISandboxGatewayRequest, executeOpenAISandboxGateway } from "../services/openAISandboxGateway";
 
 const REVIEW_TYPES = ["SEO_TITLE", "JP_SNS_POST", "BLOG_ARTICLE", "CANVA_INSTRUCTION"];
 
@@ -152,6 +153,10 @@ export default function OwnerReviewWorkspace({ revenueCampaigns = [], budget }) 
   const [marketRejectReason, setMarketRejectReason] = useState("NOT_ALIGNED");
   const [marketWorkflowError, setMarketWorkflowError] = useState("");
   const [threeLaneResult, setThreeLaneResult] = useState(() => ({ orchestration: null }));
+  const [openAISandboxArmed, setOpenAISandboxArmed] = useState(false);
+  const [openAISandboxRunning, setOpenAISandboxRunning] = useState(false);
+  const [openAISandboxResult, setOpenAISandboxResult] = useState(null);
+  const [openAISandboxDecision, setOpenAISandboxDecision] = useState("pending");
   const marketReviewQueue = marketReviewData.queue;
   const marketReviewItem = marketReviewData.item;
   const marketReviewCandidate = marketReviewData.candidate;
@@ -312,6 +317,21 @@ export default function OwnerReviewWorkspace({ revenueCampaigns = [], budget }) 
   const handleThreeLaneDeploy = () => {
     const result = orchestrateThreeRevenueLanes(getBrowserStorage(), exportEntity, { reviewDecision: marketDecision, latestRevision });
     setThreeLaneResult(result.ok ? result : { ...result, orchestration: null });
+  };
+  const handleOpenAISandbox = async () => {
+    if (!openAISandboxArmed) {
+      setOpenAISandboxArmed(true);
+      return;
+    }
+    const directService = threeLaneResult.orchestration?.lanes?.directService;
+    if (!exportEntity || !directService || openAISandboxRunning) return;
+    setOpenAISandboxRunning(true);
+    setOpenAISandboxDecision("pending");
+    const request = buildOpenAISandboxGatewayRequest({ sourceExport: exportEntity, directService, emergencyStopActive: Boolean(budget?.emergencyStop) });
+    const result = await executeOpenAISandboxGateway(request);
+    setOpenAISandboxResult(result);
+    setOpenAISandboxRunning(false);
+    setOpenAISandboxArmed(false);
   };
   useEffect(() => {
     if (!exportEntity) {
@@ -489,6 +509,13 @@ export default function OwnerReviewWorkspace({ revenueCampaigns = [], budget }) 
                     <div><span>OpenAI</span><strong>実接続はロック中</strong><small>現在はMock生成のみ</small></div>
                     <div><span>次の判断</span><strong>制作サービスの提案内容を確認する</strong></div>
                     <details><summary>3つの収益レーンの詳細</summary><h4>制作サービス 3プラン</h4><ul>{o.lanes.directService.packageOptions.map(x=><li key={x.packageId}>{x.name}：提案価格 {formatYen(x.forecastPriceJpy)}（予測）/ 修正{x.revisionLimit}回</li>)}</ul><h4>Affiliate候補</h4><p>{o.lanes.affiliate.articleTitle} / 広告・Affiliate開示文あり / リンク未接続 / ASP・プログラム確認が必要</p><h4>SNS候補</h4><p>短文投稿 3件・カルーセル構成 1件・スレッド構成 1件 / 投稿機能は未接続</p><h4>安全状態</h4><p>Mock運用 / 外部通信なし / Production実行なし / 実売上未接続 / Ledger記録なし</p></details>
+                    <section className="openai-sandbox-card">
+                      <div><span>OpenAI実接続</span><strong>{openAISandboxResult?.ok ? "Sandbox生成完了" : openAISandboxRunning ? "生成中" : openAISandboxArmed ? "最終確認待ち" : "準備確認中"}</strong><small>少額API利用の可能性があります。Production公開、SNS投稿、Affiliateリンク発行、実売上接続は行いません。</small></div>
+                      <button type="button" onClick={handleOpenAISandbox} disabled={openAISandboxRunning}>{openAISandboxRunning ? "実行中" : openAISandboxArmed ? "確認して1回実行" : "OpenAI Sandbox生成を1回実行"}</button>
+                      {openAISandboxArmed && <p className="market-review-safe-message">Direct Service Draftだけを1回生成します。再読込や画面表示では実行されません。</p>}
+                      {openAISandboxResult && !openAISandboxResult.ok && <p className="market-review-alert" role="alert">{openAISandboxResult.message}（{openAISandboxResult.reasonCode || "条件未確認"}）</p>}
+                      {openAISandboxResult?.ok && <div className="openai-sandbox-preview"><h4>OpenAI Sandbox 制作サービス案</h4><strong>{openAISandboxResult.validatedOutput.serviceName}</strong><p>{openAISandboxResult.validatedOutput.proposalSummary}</p><small>使用量 {openAISandboxResult.usage.totalTokens.toLocaleString("ja-JP")} tokens / 推定費用 ${Number(openAISandboxResult.cost.estimatedUsd).toFixed(4)}</small><div className="market-review-decision-actions"><button type="button" onClick={() => setOpenAISandboxDecision("adopted")}>採用</button><button type="button" onClick={() => setOpenAISandboxDecision("held")}>保留</button><button type="button" onClick={() => setOpenAISandboxDecision("rejected")}>却下</button></div><p>Owner判断: {openAISandboxDecision === "adopted" ? "採用候補" : openAISandboxDecision === "held" ? "保留" : openAISandboxDecision === "rejected" ? "却下" : "未選択"}。既存Mockは自動上書きしません。</p></div>}
+                    </section>
                   </div>; })()}
                 </section>
               )}

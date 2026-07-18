@@ -1758,6 +1758,7 @@ nav.sidebar::-webkit-scrollbar-track {
   }
 }
 .three-lane-panel{margin-top:16px;padding:18px;border:1px solid rgba(101,210,138,.28);border-radius:18px;background:rgba(247,255,250,.82);display:grid;gap:14px}.three-lane-panel>button{justify-self:start;border:0;border-radius:999px;padding:12px 18px;background:#214f36;color:#fff;font-weight:800;cursor:pointer}.three-lane-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.three-lane-summary>div,.three-lane-summary details{padding:14px;border-radius:14px;background:#fff;display:grid;gap:6px}.three-lane-summary small,.three-lane-summary span{color:#65717a}.three-lane-summary details{grid-column:1/-1}.three-lane-summary>div:last-of-type{grid-column:1/-1}@media(max-width:900px){.three-lane-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.three-lane-summary{grid-template-columns:1fr}}
+.openai-sandbox-card{grid-column:1/-1;padding:16px;border:1px solid rgba(46,112,75,.18);border-radius:14px;background:#f5fbf7;display:grid;gap:12px}.openai-sandbox-card>div{display:grid;gap:6px}.openai-sandbox-card>button{justify-self:start;border:0;border-radius:999px;padding:10px 14px;background:#214f36;color:#fff;font-weight:800}.openai-sandbox-card button:disabled{opacity:.55}.openai-sandbox-preview{padding:14px;border-radius:12px;background:#fff}.openai-sandbox-preview .market-review-decision-actions{margin-top:12px}
 
 @media (max-width: 1180px) {
   .owner-action-list,

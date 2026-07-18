@@ -62,6 +62,14 @@ export default async function handler(req, res) {
   }
 
   const body = isPlainObject(req.body) ? req.body : {};
+  if (body.action === "sandboxGenerateRevenueLanes") {
+    const result = await executeSandboxResponse(body, { ownerAuthenticated: false, featureEnabled: false, usageStore: null });
+    const statusCode = result.ok ? 200 : result.reasonCode === "PROVIDER_CREDENTIAL_REQUIRED" ? 503 : result.status === "blocked" ? 403 : 502;
+    return res.status(statusCode).json(result);
+  }
+  if (body.action != null) {
+    return res.status(400).json({ ok: false, status: "blocked", reasonCode: "UNKNOWN_ACTION", message: "未対応の操作です。" });
+  }
   const { message, context = {} } = body;
 
   if (!message || typeof message !== "string") {
@@ -87,3 +95,4 @@ export default async function handler(req, res) {
     approvalConfirmed: false,
   });
 }
+import { executeSandboxResponse } from "../server/openaiSandboxAdapter.js";

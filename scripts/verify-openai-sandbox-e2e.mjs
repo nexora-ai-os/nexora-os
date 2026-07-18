@@ -1,0 +1,34 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import handler from "../api/ai.js";
+import { buildOpenAISandboxGatewayRequest } from "../src/services/openAISandboxGateway.js";
+
+let passed = 0;
+const check = (name, fn) => { fn(); passed += 1; console.log(`PASS ${name}`); };
+function response() { return { statusCode: 0, payload: null, status(code) { this.statusCode = code; return this; }, json(value) { this.payload = value; return this; } }; }
+const sourceExport = { exportId: "export-1", correlationId: "correlation-1", sourceRevisionCandidateId: "revision-1" };
+const directService = { serviceName: "Mock service", proposalSummary: "Safe proposal", deliverables: ["draft"], deliveryScope: ["creation"], excludedScope: ["publish"], riskNotes: ["not guaranteed"] };
+const request = buildOpenAISandboxGatewayRequest({ sourceExport, directService, emergencyStopActive: false });
+const getRes = response();
+await handler({ method: "GET", body: {} }, getRes);
+check("unknown method rejected", () => assert.equal(getRes.statusCode, 405));
+const actionRes = response();
+await handler({ method: "POST", body: { action: "unknown" } }, actionRes);
+check("unknown action rejected", () => assert.equal(actionRes.payload.reasonCode, "UNKNOWN_ACTION"));
+const forgedRes = response();
+await handler({ method: "POST", body: request }, forgedRes);
+check("public forged owner approval rejected", () => assert.equal(forgedRes.statusCode, 403));
+check("public endpoint requires server authentication", () => assert.equal(forgedRes.payload.reasonCode, "LIVE_SANDBOX_AUTH_REQUIRED"));
+const adapterSource = readFileSync(new URL("../server/openaiSandboxAdapter.js", import.meta.url), "utf8");
+const apiSource = readFileSync(new URL("../api/ai.js", import.meta.url), "utf8");
+const uiSource = readFileSync(new URL("../src/components/OwnerReviewWorkspace.jsx", import.meta.url), "utf8");
+check("existing route owns sandbox action", () => assert.ok(apiSource.includes('body.action === "sandboxGenerateRevenueLanes"')));
+check("public route hard-locks missing server auth", () => assert.ok(apiSource.includes("ownerAuthenticated: false")));
+check("public route does not retrieve provider credential", () => assert.equal(/OPENAI_API_KEY|process\.env/.test(apiSource), false));
+check("server adapter owns external URL", () => assert.ok(adapterSource.includes("https://api.openai.com/v1/responses")));
+check("client does not contain external URL", () => assert.equal(uiSource.includes("api.openai.com"), false));
+check("credential name not rendered", () => assert.equal(uiSource.includes("OPENAI_API_KEY"), false));
+check("Affiliate and SNS absent from request", () => assert.equal(request.purpose === "directServiceDraft" && JSON.stringify(request.input).includes("affiliate"), false));
+check("render and reload do not execute gateway", () => assert.ok(uiSource.includes("onClick={handleOpenAISandbox}")));
+check("no automatic adoption", () => assert.ok(uiSource.includes("既存Mockは自動上書きしません")));
+console.log(`OpenAI sandbox E2E verification: ${passed}/13 passed`);

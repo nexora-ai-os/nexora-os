@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { buildMockRevenueCampaign, getDefaultRevenueCampaignInput } from "../services/revenueCampaignService";
 import { generateRevenuePackage } from "../services/revenuePackageService";
 import { canExecute, createPhase1Context, EXECUTION_MODES } from "../services/safetyEngine";
@@ -14,6 +14,7 @@ import {
   loadPublishImprovementState,
   runOwnerReviewWorkflow,
 } from "../services/publishImprovementOrchestrator";
+import { loadCrossLaneRevenue, orchestrateThreeRevenueLanes } from "../services/crossLaneRevenueOrchestrator";
 
 const REVIEW_TYPES = ["SEO_TITLE", "JP_SNS_POST", "BLOG_ARTICLE", "CANVA_INSTRUCTION"];
 
@@ -150,6 +151,7 @@ export default function OwnerReviewWorkspace({ revenueCampaigns = [], budget }) 
   const [marketDecisionReason, setMarketDecisionReason] = useState("CLARIFY_OFFER");
   const [marketRejectReason, setMarketRejectReason] = useState("NOT_ALIGNED");
   const [marketWorkflowError, setMarketWorkflowError] = useState("");
+  const [threeLaneResult, setThreeLaneResult] = useState(() => ({ orchestration: null }));
   const marketReviewQueue = marketReviewData.queue;
   const marketReviewItem = marketReviewData.item;
   const marketReviewCandidate = marketReviewData.candidate;
@@ -307,6 +309,18 @@ export default function OwnerReviewWorkspace({ revenueCampaigns = [], budget }) 
     anchor.click();
     window.URL.revokeObjectURL(url);
   };
+  const handleThreeLaneDeploy = () => {
+    const result = orchestrateThreeRevenueLanes(getBrowserStorage(), exportEntity, { reviewDecision: marketDecision, latestRevision });
+    setThreeLaneResult(result.ok ? result : { ...result, orchestration: null });
+  };
+  useEffect(() => {
+    if (!exportEntity) {
+      setThreeLaneResult({ orchestration: null });
+      return;
+    }
+    const loaded = loadCrossLaneRevenue(getBrowserStorage(), exportEntity.exportId);
+    setThreeLaneResult(loaded.ok ? loaded : { ...loaded, orchestration: null });
+  }, [exportEntity?.exportId]);
 
   if (!selected) {
     return (
@@ -462,6 +476,21 @@ export default function OwnerReviewWorkspace({ revenueCampaigns = [], budget }) 
                     <strong>{topImprovement.nextAction}</strong>
                   </div>
                 </div>
+              )}
+              {exportEntity && (
+                <section className="three-lane-panel" aria-live="polite">
+                  <div><p className="eyebrow">3つの収益レーン</p><h3>この成果物を3つの収益レーンへ展開できます</h3><p>現在はMock候補の作成のみです。外部への送信や公開は行いません。</p></div>
+                  <button type="button" onClick={handleThreeLaneDeploy}>3レーンへ展開</button>
+                  {threeLaneResult.message && <p className="market-review-alert" role="alert">{threeLaneResult.message}</p>}
+                  {threeLaneResult.orchestration && (() => { const o=threeLaneResult.orchestration; const p=o.lanes.directService.packageOptions[0]; return <div className="three-lane-summary">
+                    <div><span>最優先の収益レーン</span><strong>制作サービス</strong><small>{p.name} / 提案価格 {formatYen(p.forecastPriceJpy)}（予測）/ 納期 {p.deliveryDays}日</small></div>
+                    <div><span>SNS候補</span><strong>{o.lanes.snsMedia.posts.length}件</strong><small>投稿機能は未接続</small></div>
+                    <div><span>Affiliate候補</span><strong>{o.lanes.affiliate.linkCandidates.length}件</strong><small>リンク未接続・プログラム確認が必要</small></div>
+                    <div><span>OpenAI</span><strong>実接続はロック中</strong><small>現在はMock生成のみ</small></div>
+                    <div><span>次の判断</span><strong>制作サービスの提案内容を確認する</strong></div>
+                    <details><summary>3つの収益レーンの詳細</summary><h4>制作サービス 3プラン</h4><ul>{o.lanes.directService.packageOptions.map(x=><li key={x.packageId}>{x.name}：提案価格 {formatYen(x.forecastPriceJpy)}（予測）/ 修正{x.revisionLimit}回</li>)}</ul><h4>Affiliate候補</h4><p>{o.lanes.affiliate.articleTitle} / 広告・Affiliate開示文あり / リンク未接続 / ASP・プログラム確認が必要</p><h4>SNS候補</h4><p>短文投稿 3件・カルーセル構成 1件・スレッド構成 1件 / 投稿機能は未接続</p><h4>安全状態</h4><p>Mock運用 / 外部通信なし / Production実行なし / 実売上未接続 / Ledger記録なし</p></details>
+                  </div>; })()}
+                </section>
               )}
 
               <button

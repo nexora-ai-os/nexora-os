@@ -1757,6 +1757,7 @@ nav.sidebar::-webkit-scrollbar-track {
     min-height: 96px;
   }
 }
+.three-lane-panel{margin-top:16px;padding:18px;border:1px solid rgba(101,210,138,.28);border-radius:18px;background:rgba(247,255,250,.82);display:grid;gap:14px}.three-lane-panel>button{justify-self:start;border:0;border-radius:999px;padding:12px 18px;background:#214f36;color:#fff;font-weight:800;cursor:pointer}.three-lane-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.three-lane-summary>div,.three-lane-summary details{padding:14px;border-radius:14px;background:#fff;display:grid;gap:6px}.three-lane-summary small,.three-lane-summary span{color:#65717a}.three-lane-summary details{grid-column:1/-1}.three-lane-summary>div:last-of-type{grid-column:1/-1}@media(max-width:900px){.three-lane-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.three-lane-summary{grid-template-columns:1fr}}
 
 @media (max-width: 1180px) {
   .owner-action-list,

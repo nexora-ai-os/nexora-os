@@ -16,6 +16,7 @@ import {
 } from "../services/publishImprovementOrchestrator";
 import { loadCrossLaneRevenue, orchestrateThreeRevenueLanes } from "../services/crossLaneRevenueOrchestrator";
 import { buildOpenAISandboxGatewayRequest, executeOpenAISandboxGateway } from "../services/openAISandboxGateway";
+import { buildRevenueEvidenceCandidate, buildManualExportDocuments, saveRevenueEvidenceCandidate } from "../services/revenueActivationService";
 
 const REVIEW_TYPES = ["SEO_TITLE", "JP_SNS_POST", "BLOG_ARTICLE", "CANVA_INSTRUCTION"];
 
@@ -310,13 +311,26 @@ export default function OwnerReviewWorkspace({ revenueCampaigns = [], budget }) 
     const url = window.URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = `${exportEntity.exportId.replaceAll(":", "-")}.md`;
+    anchor.download = `${String(exportEntity.exportId).replace(/[^a-zA-Z0-9._-]/g, "-")}.md`;
     anchor.click();
     window.URL.revokeObjectURL(url);
   };
   const handleThreeLaneDeploy = () => {
     const result = orchestrateThreeRevenueLanes(getBrowserStorage(), exportEntity, { reviewDecision: marketDecision, latestRevision });
+    if (result.ok && exportEntity) {
+      const direct = result.orchestration?.lanes?.directService;
+      const candidate = buildRevenueEvidenceCandidate({ correlationId: exportEntity.correlationId, sourceType: "directServiceMock", sourceReference: exportEntity.exportId, revenueModel: "directService", amountCandidate: direct?.forecastPriceJpy || null });
+      saveRevenueEvidenceCandidate(getBrowserStorage(), candidate);
+    }
     setThreeLaneResult(result.ok ? result : { ...result, orchestration: null });
+  };
+  const handleManualExport = (filename) => {
+    const o = threeLaneResult.orchestration;
+    if (!o || typeof window === "undefined") return;
+    const documents = buildManualExportDocuments({ directService: o.lanes.directService, sns: o.lanes.snsMedia, affiliate: o.lanes.affiliate });
+    const text = documents[filename]; if (!text) return;
+    const url = window.URL.createObjectURL(new Blob([text], { type: "text/markdown;charset=utf-8" }));
+    const anchor = document.createElement("a"); anchor.href = url; anchor.download = filename.replace(/[^a-zA-Z0-9._-]/g, "-"); anchor.click(); window.URL.revokeObjectURL(url);
   };
   const handleOpenAISandbox = async () => {
     if (!openAISandboxArmed) {
@@ -501,6 +515,7 @@ export default function OwnerReviewWorkspace({ revenueCampaigns = [], budget }) 
                 <section className="three-lane-panel" aria-live="polite">
                   <div><p className="eyebrow">3つの収益レーン</p><h3>この成果物を3つの収益レーンへ展開できます</h3><p>現在はMock候補の作成のみです。外部への送信や公開は行いません。</p></div>
                   <button type="button" onClick={handleThreeLaneDeploy}>3レーンへ展開</button>
+                  {threeLaneResult.orchestration && <div className="manual-export-actions" aria-live="polite">{["Proposal.md", "Inquiry-Reply.md", "Discovery-Questions.md", "SNS-Candidates.md", "Affiliate-Candidates.md"].map((filename) => <button key={filename} type="button" onClick={() => handleManualExport(filename)}>{filename} Export</button>)}</div>}
                   {threeLaneResult.message && <p className="market-review-alert" role="alert">{threeLaneResult.message}</p>}
                   {threeLaneResult.orchestration && (() => { const o=threeLaneResult.orchestration; const p=o.lanes.directService.packageOptions[0]; return <div className="three-lane-summary">
                     <div><span>最優先の収益レーン</span><strong>制作サービス</strong><small>{p.name} / 提案価格 {formatYen(p.forecastPriceJpy)}（予測）/ 納期 {p.deliveryDays}日</small></div>

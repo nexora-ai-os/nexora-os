@@ -1,11 +1,13 @@
 import TopBar from "./TopBar";
 import SocialRevenuePanel from "./SocialRevenuePanel";
+import { loadRevenueEvidenceCandidates } from "../services/revenueActivationService";
 
 function formatYen(value) {
   return `${Number(value || 0).toLocaleString()}円`;
 }
 
 export default function Analytics({ analytics, approvals, savedAt, setPage }) {
+  const evidenceCandidates = typeof window !== "undefined" ? loadRevenueEvidenceCandidates(window.localStorage).items : [];
   const safeApprovals = Array.isArray(approvals) ? approvals : [];
   const approved = safeApprovals.filter((a) => ["承認済み", "謇ｿ隱肴ｸ医∩"].includes(a.status)).length;
   const mockClicks = Number(analytics?.mockClicks || analytics?.clicks || 0);
@@ -81,6 +83,10 @@ export default function Analytics({ analytics, approvals, savedAt, setPage }) {
           <div>ConoHa AI Canvas: Mock候補。画像生成コンテンツ向け。</div>
           <div>Value AI Writer: Mock候補。ブログ導線向け。</div>
         </div>
+      </section>
+      <section className="panel" aria-live="polite">
+        <h2>Revenue Evidence Candidate</h2>
+        <div className="mission-list"><div>未検証候補: {evidenceCandidates.length}件</div><div>Verified Revenue: 未接続 / Actual Revenue: 未接続</div><div>候補はMock Workspace Stateであり、Ledgerには追記しません。</div></div>
       </section>
     </main>
   );

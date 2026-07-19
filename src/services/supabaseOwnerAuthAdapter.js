@@ -1,0 +1,3 @@
+export function createSupabaseOwnerAuthAdapter(client) {
+  return { async authorize() { if (!client?.auth?.getUser) return { authorized: false, status: "locked", reasonCode: "OWNER_AUTH_PROVIDER_REQUIRED", ownerIdentityVerified: false, sessionVerified: false, csrfVerified: false }; const result = await client.auth.getUser(); const user = result?.data?.user; return user?.id ? { authorized: true, status: "ready", ownerId: user.id, ownerIdentityVerified: true, sessionVerified: true, csrfVerified: false } : { authorized: false, status: "locked", reasonCode: "OWNER_AUTH_REQUIRED", ownerIdentityVerified: false, sessionVerified: false, csrfVerified: false }; } };
+}

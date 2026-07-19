@@ -31,4 +31,8 @@ check("idempotency unique", () => assert.ok(migration.includes("idempotency_key 
 check("owner foreign keys", () => assert.ok((migration.match(/references auth.users\(id\)/g) || []).length >= 4));
 check("usage write policy absent", () => assert.equal(/create policy .* for (insert|update|delete)/i.test(migration), false));
 check("raw provider fields absent", () => assert.equal(/api_key|credential|raw_response|service_role key/i.test(migration), false));
+check("migration transaction wrapped", () => assert.ok(/^begin;/.test(migration.trim()) && /commit;\s*$/.test(migration.trim())));
+for (const policy of ["owner_profiles_self", "usage_self", "cache_self"]) check(`policy ${policy} dropped before create`, () => { const drop = migration.indexOf(`drop policy if exists ${policy}`); const create = migration.indexOf(`create policy ${policy}`); assert.ok(drop >= 0 && drop < create); });
+check("no table drop", () => assert.equal(/drop table/i.test(migration), false));
+check("no data delete", () => assert.equal(/delete from|truncate/i.test(migration), false));
 console.log(`Supabase readiness verification: ${passed}/10 passed`);

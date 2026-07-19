@@ -1,4 +1,31 @@
 import assert from "node:assert/strict";
 import { buildOpenAISandboxGatewayRequest, executeOpenAISandboxGateway, validateOpenAISandboxGatewayRequest } from "../src/services/openAISandboxGateway.js";
 
-let passed=0;const check=(name,fn)=>{fn();passed+=1;console.log(`PASS ${name}`)};const sourceExport={exportId:"export-1",correlationId:"correlation-1",sourceRevisionCandidateId:"revision-1"};const directService={serviceName:"Mock制作",proposalSummary:"安全な提案",deliverables:["初稿"],deliveryScope:["制作"],excludedScope:["公開"],riskNotes:["保証なし"]};const request=buildOpenAISandboxGatewayRequest({sourceExport,directService,monthlySandboxSpendUsd:0.01,emergencyStopActive:false});check("gateway request validates",()=>assert.equal(validateOpenAISandboxGatewayRequest(request).valid,true));check("owner approval explicit",()=>assert.equal(request.ownerApproved,true));check("only direct service purpose",()=>assert.equal(request.purpose,"directServiceDraft"));check("production remains false",()=>assert.equal(request.productionExecution||request.publishEnabled||request.actualRevenueConnected||request.ledgerAppend,false));check("emergency stop blocks",()=>assert.equal(validateOpenAISandboxGatewayRequest({...request,emergencyStopActive:true}).valid,false));check("approval scope mismatch blocks",()=>assert.equal(validateOpenAISandboxGatewayRequest({...request,approvalScope:"wrong"}).valid,false));check("owner not approved blocks",()=>assert.equal(validateOpenAISandboxGatewayRequest({...request,ownerApproved:false}).valid,false));check("PII field blocks",()=>assert.equal(validateOpenAISandboxGatewayRequest({...request,input:{...request.input,email:"x@example.test"}}).valid,false));check("credential field blocks",()=>assert.equal(validateOpenAISandboxGatewayRequest({...request,input:{...request.input,apiKey:"secret"}}).valid,false));let calls=0;const transport=async()=>{calls+=1;await new Promise(r=>setTimeout(r,5));return{ok:true,json:async()=>({ok:true,status:"sandboxGenerationComplete"})}};const [a,b]=await Promise.all([executeOpenAISandboxGateway(request,{transport}),executeOpenAISandboxGateway(request,{transport})]);check("duplicate click one request",()=>assert.equal(calls,1));check("duplicate receives same result",()=>assert.deepEqual(a,b));const circular={...request};circular.input=circular;check("circular request fails closed",()=>assert.equal(validateOpenAISandboxGatewayRequest(circular).valid,false));check("input not mutated",()=>assert.equal(directService.serviceName,"Mock制作"));console.log(`OpenAI sandbox gateway verification: ${passed}/13 passed`);
+let passed = 0;
+const check = async (name, fn) => { await fn(); passed += 1; console.log(`PASS ${name}`); };
+const sourceExport = { exportId: "export-1", correlationId: "correlation-1", sourceRevisionCandidateId: "revision-1" };
+const directService = { serviceName: "Mock service", proposalSummary: "Safe proposal", deliverables: ["draft"], deliveryScope: ["creation"], excludedScope: ["publish"], riskNotes: ["not guaranteed"] };
+const request = buildOpenAISandboxGatewayRequest({ sourceExport, directService, emergencyStopActive: false });
+
+await check("gateway request validates", () => assert.equal(validateOpenAISandboxGatewayRequest(request).valid, true));
+await check("production remains false", () => assert.equal(request.productionExecution || request.publishEnabled || request.actualRevenueConnected || request.ledgerAppend, false));
+await check("emergency stop blocks", () => assert.equal(validateOpenAISandboxGatewayRequest({ ...request, emergencyStopActive: true }).valid, false));
+await check("PII field blocks", () => assert.equal(validateOpenAISandboxGatewayRequest({ ...request, input: { ...request.input, email: "x@example.test" } }).valid, false));
+let missingSessionCalls = 0;
+const missingSession = await executeOpenAISandboxGateway(request, { transport: async () => { missingSessionCalls += 1; } });
+await check("missing session blocks before transport", () => assert.equal(missingSession.reasonCode === "OWNER_SESSION_INVALID" && missingSessionCalls === 0, true));
+let calls = 0; let captured;
+const transport = async (url, init) => { calls += 1; captured = { url, init }; await new Promise((resolve) => setTimeout(resolve, 5)); return { ok: true, json: async () => ({ ok: true, status: "sandboxGenerationComplete" }) }; };
+const options = { transport, getAccessToken: () => "test-access-token" };
+const [a, b] = await Promise.all([executeOpenAISandboxGateway(request, options), executeOpenAISandboxGateway(request, options)]);
+await check("duplicate click one request", () => assert.equal(calls, 1));
+await check("duplicate receives same result", () => assert.deepEqual(a, b));
+await check("token only in authorization header", () => { assert.equal(captured.url, "/api/ai"); assert.equal(captured.init.headers.authorization, "Bearer test-access-token"); assert.equal(captured.init.body.includes("test-access-token"), false); assert.equal(captured.url.includes("test-access-token"), false); });
+let retryClicks = 0;
+const failedOptions = { getAccessToken: () => "test-access-token", transport: async () => { retryClicks += 1; return { ok: false, json: async () => ({ reasonCode: "PROVIDER_EXECUTION_FAILED" }) }; } };
+await executeOpenAISandboxGateway(request, failedOptions); await executeOpenAISandboxGateway(request, failedOptions);
+await check("new explicit click retries after failed action", () => assert.equal(retryClicks, 2));
+const circular = { ...request }; circular.input = circular;
+await check("circular request fails closed", () => assert.equal(validateOpenAISandboxGatewayRequest(circular).valid, false));
+await check("input not mutated", () => assert.equal(directService.serviceName, "Mock service"));
+console.log(`OpenAI sandbox gateway verification: ${passed}/11 passed`);

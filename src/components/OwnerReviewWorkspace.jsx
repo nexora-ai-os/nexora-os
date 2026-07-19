@@ -139,7 +139,7 @@ function buildPublishBundle({ artifact, draft }) {
   };
 }
 
-export default function OwnerReviewWorkspace({ revenueCampaigns = [], budget }) {
+export default function OwnerReviewWorkspace({ revenueCampaigns = [], budget, getOwnerAccessToken }) {
   const [selectedType, setSelectedType] = useState("SEO_TITLE");
   const [pipeline, setPipeline] = useState({});
   const [revisionNotes, setRevisionNotes] = useState({});
@@ -342,7 +342,7 @@ export default function OwnerReviewWorkspace({ revenueCampaigns = [], budget }) 
     setOpenAISandboxRunning(true);
     setOpenAISandboxDecision("pending");
     const request = buildOpenAISandboxGatewayRequest({ sourceExport: exportEntity, directService, emergencyStopActive: Boolean(budget?.emergencyStop) });
-    const result = await executeOpenAISandboxGateway(request);
+    const result = await executeOpenAISandboxGateway(request, { getAccessToken: getOwnerAccessToken });
     setOpenAISandboxResult(result);
     setOpenAISandboxRunning(false);
     setOpenAISandboxArmed(false);

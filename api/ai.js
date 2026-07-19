@@ -56,6 +56,9 @@ function buildMockReply(message, context = {}) {
   ].join("\n");
 }
 
+const SAFE_REASON_CODES = new Set(["OWNER_SESSION_INVALID", "OWNER_AUTH_CONTEXT_REQUIRED", "OWNER_PROFILE_NOT_ACTIVE", "REQUEST_ORIGIN_NOT_ALLOWED", "OWNER_AUTH_PROVIDER_REQUIRED", "REQUEST_INTEGRITY_REQUIRED", "SERVER_USAGE_STORE_REQUIRED", "USAGE_RESERVATION_FAILED", "USAGE_COMMIT_FAILED", "USAGE_RELEASE_FAILED", "SANDBOX_REQUEST_ALREADY_CLAIMED", "LIVE_SANDBOX_FEATURE_LOCKED", "PROVIDER_CREDENTIAL_REQUIRED", "PROVIDER_EXECUTION_FAILED"]);
+function normalizedApiFailure(error) { const reasonCode = SAFE_REASON_CODES.has(error?.reasonCode) ? error.reasonCode : "SERVER_USAGE_STORE_REQUIRED"; return { ok: false, status: "blocked", reasonCode, message: "Sandbox request could not be completed.", productionExecution: false, publishEnabled: false, actualRevenueConnected: false, ledgerAppend: false }; }
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -63,12 +66,16 @@ export default async function handler(req, res) {
 
   const body = isPlainObject(req.body) ? req.body : {};
   if (body.action === "sandboxGenerateRevenueLanes") {
-    const verified = await resolveVerifiedOwnerContext(req);
-    if (!verified.ok) return res.status(403).json({ ok: false, status: "blocked", reasonCode: verified.reasonCode, productionExecution: false, publishEnabled: false, actualRevenueConnected: false, ledgerAppend: false });
-    const usageStore = createVerifiedSupabaseUsageStoreAdapter(createSupabaseServerClient(), verified.context);
-    const result = await executeSandboxResponse(body, { ownerAuthenticated: true, featureEnabled: process.env.KEVIRIO_OPENAI_SANDBOX_ENABLED === "true", usageStore, credential: process.env.OPENAI_API_KEY, ownerContext: verified.context });
-    const statusCode = result.ok ? 200 : result.reasonCode === "PROVIDER_CREDENTIAL_REQUIRED" ? 503 : result.status === "blocked" ? 403 : 502;
-    return res.status(statusCode).json(result);
+    try {
+      const verified = await resolveVerifiedOwnerContext(req);
+      if (!verified.ok) return res.status(403).json(normalizedApiFailure({ reasonCode: verified.reasonCode }));
+      const usageStore = createVerifiedSupabaseUsageStoreAdapter(createSupabaseServerClient(), verified.context);
+      const result = await executeSandboxResponse(body, { ownerAuthenticated: true, featureEnabled: process.env.KEVIRIO_OPENAI_SANDBOX_ENABLED === "true", usageStore, credential: process.env.OPENAI_API_KEY, ownerContext: verified.context });
+      const statusCode = result.ok ? 200 : result.reasonCode === "PROVIDER_CREDENTIAL_REQUIRED" ? 503 : result.status === "blocked" ? 403 : 502;
+      return res.status(statusCode).json(result);
+    } catch (error) {
+      return res.status(503).json(normalizedApiFailure(error));
+    }
   }
   if (body.action != null) {
     return res.status(400).json({ ok: false, status: "blocked", reasonCode: "UNKNOWN_ACTION", message: "未対応の操作です。" });

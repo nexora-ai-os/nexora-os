@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { cloneElement, useEffect, useMemo, useState } from "react";
 import { createSupabaseBrowserClient } from "../services/supabaseBrowserClient";
 
 export default function SupabaseOwnerAuthGate({ children }) {
@@ -10,5 +10,6 @@ export default function SupabaseOwnerAuthGate({ children }) {
   if (!client) return <main className="content"><section className="panel"><h1>Ownerログインが必要です</h1><p>Supabase Auth未設定のため、SandboxはLockedです。</p></section></main>;
   if (!session) return <main className="content"><section className="panel"><h1>Ownerログイン</h1><form onSubmit={signIn}><label>Email<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="username" required /></label><label>Password<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required /></label><button type="submit">ログイン</button></form>{message && <p role="alert">{message}</p>}</section></main>;
   const signOut = async () => { if (!client) return; await client.auth.signOut(); setSession(null); };
-  return <><div className="owner-auth-toolbar"><span>Owner session verified</span><button type="button" onClick={signOut}>Logout</button></div>{children}</>;
+  const getOwnerAccessToken = () => session?.access_token || null;
+  return <><div className="owner-auth-toolbar"><span>Owner session verified</span><button type="button" onClick={signOut}>Logout</button></div>{cloneElement(children, { getOwnerAccessToken })}</>;
 }
